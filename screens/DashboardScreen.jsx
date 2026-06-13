@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../store/useAuthStore';
+import theme from '../constants/theme';
 
 // Import Grooming components
 import GroomingMyShop from './grooming/GroomingMyShop';
@@ -44,7 +44,7 @@ export default function DashboardScreen() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'myshop' | 'profile' | 'charges'
 
   return (
-    <LinearGradient colors={['#f3e8ff', '#e0f2fe', '#e0e7ff']} style={styles.container}>
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         {/* Top Header Container */}
         <View style={styles.headerContainer}>
@@ -386,126 +386,118 @@ export default function DashboardScreen() {
           </View>
         )}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
   },
   safeArea: {
     flex: 1,
   },
   headerContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingTop: theme.SIZES.md,
+    paddingBottom: theme.SIZES.sm,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   welcomeText: {
-    fontSize: 15,
-    color: '#64748b',
-    fontWeight: '500',
+    ...theme.TEXT.bodySecondary,
   },
   nameText: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#1e1b4b',
+    ...theme.TEXT.h2,
   },
   logoutBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#fee2e2',
+    backgroundColor: theme.COLORS.errorLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   badgeContainer: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: theme.SIZES.sm,
   },
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3e8ff',
+    backgroundColor: theme.COLORS.primaryLight,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xl,
     borderWidth: 1,
-    borderColor: '#e9d5ff',
+    borderColor: theme.COLORS.borderDark,
   },
   roleBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#7c3aed',
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.primary,
     marginLeft: 6,
+    textTransform: 'uppercase',
   },
   // Tabs styles
   tabsContainer: {
-    marginBottom: 8,
+    marginBottom: theme.SIZES.sm,
   },
   tabsScroll: {
     flexDirection: 'row',
     gap: 8,
-    paddingRight: 16,
+    paddingRight: theme.SIZES.lg,
   },
   tabButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.COLORS.surface,
     paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 14,
+    paddingHorizontal: theme.SIZES.md,
+    borderRadius: theme.RADIUS.lg,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.borderDark,
   },
   tabButtonActive: {
-    backgroundColor: '#7c3aed',
-    borderColor: '#7c3aed',
+    backgroundColor: theme.COLORS.primary,
+    borderColor: theme.COLORS.primary,
   },
   tabIcon: {
     marginRight: 6,
   },
   tabLabel: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#64748b',
+    fontWeight: theme.FONTS.semiBold,
+    color: theme.COLORS.textSecondary,
   },
   tabLabelActive: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
   },
   // Content styles
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-    paddingTop: 8,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingBottom: theme.SIZES.xxl,
+    paddingTop: theme.SIZES.sm,
   },
   componentContainer: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: theme.SIZES.lg,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#334155',
-    marginBottom: 14,
+    ...theme.TEXT.h3,
+    marginBottom: theme.SIZES.sm,
   },
   detailsCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
-    marginBottom: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.lg,
+    ...theme.SHADOWS.md,
+    marginBottom: theme.SIZES.lg,
     gap: 16,
   },
   detailRow: {
@@ -514,29 +506,25 @@ const styles = StyleSheet.create({
   },
   detailIcon: {
     marginRight: 16,
-    backgroundColor: '#f5f3ff',
+    backgroundColor: theme.COLORS.primaryLight,
     padding: 10,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
   },
   detailLabel: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '700',
-    textTransform: 'uppercase',
+    ...theme.TEXT.label,
   },
   detailValue: {
-    fontSize: 14,
-    color: '#334155',
-    fontWeight: '600',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.semiBold,
     marginTop: 2,
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#faf5ff',
+    backgroundColor: theme.COLORS.primaryLight,
     borderWidth: 1,
-    borderColor: '#f3e8ff',
-    borderRadius: 16,
-    padding: 16,
+    borderColor: theme.COLORS.border,
+    borderRadius: theme.RADIUS.lg,
+    padding: theme.SIZES.md,
     alignItems: 'center',
   },
   infoIcon: {
@@ -544,7 +532,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: '#6b21a8',
+    color: theme.COLORS.primary,
     flex: 1,
     lineHeight: 18,
   },

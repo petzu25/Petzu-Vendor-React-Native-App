@@ -11,11 +11,11 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -250,15 +250,15 @@ export default function BreederShop() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Cover Gradient */}
-      <LinearGradient colors={['#7c3aed', '#2563eb']} style={styles.heroCard}>
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
-          <Feather name="home" size={32} color="#ffffff" style={styles.heroIcon} />
+          <Feather name="home" size={32} color={theme.COLORS.surface} style={styles.heroIcon} />
           <View>
             <Text style={styles.heroTitle}>My Breeding Kennel</Text>
             <Text style={styles.heroSubtitle}>Manage your kennel details and operations</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Profile Pic Upload */}
       <View style={styles.sectionCard}>
@@ -514,20 +514,16 @@ export default function BreederShop() {
         style={styles.saveBtnWrapper}
         onPress={handleSubmit}
         disabled={saving}>
-        <LinearGradient
-          colors={['#7c3aed', '#2563eb']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.saveBtn}>
+        <View style={styles.saveBtn}>
           {saving ? (
-            <ActivityIndicator size="small" color="#ffffff" />
+            <ActivityIndicator size="small" color={theme.COLORS.surface} />
           ) : (
             <>
-              <Feather name="save" size={18} color="#ffffff" style={{ marginRight: 8 }} />
+              <Feather name="save" size={18} color={theme.COLORS.surface} style={{ marginRight: 8 }} />
               <Text style={styles.saveBtnText}>Update Operations Profile</Text>
             </>
           )}
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
       <View style={{ height: 40 }} />
     </ScrollView>
@@ -536,24 +532,26 @@ export default function BreederShop() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: theme.SIZES.xxl,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   heroCard: {
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 20,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
+    ...theme.SHADOWS.md,
   },
   heroContent: {
     flexDirection: 'row',
@@ -561,38 +559,31 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroIcon: {
-    padding: 12,
+    padding: theme.SIZES.sm,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
   },
   heroTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#ffffff',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.surface,
     marginBottom: 4,
   },
   heroSubtitle: {
-    fontSize: 13,
+    ...theme.TEXT.bodySecondary,
     color: 'rgba(255, 255, 255, 0.85)',
   },
   sectionCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
+    ...theme.SHADOWS.sm,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.border,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 16,
+    ...theme.TEXT.h3,
+    marginBottom: theme.SIZES.md,
   },
   imagePickerWrapper: {
     alignItems: 'center',
@@ -602,7 +593,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     aspectRatio: 16 / 9,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     overflow: 'hidden',
   },
   imagePreview: {
@@ -619,53 +610,51 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.75)',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
     gap: 6,
   },
   changeImageText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   uploadPlaceholder: {
     width: '100%',
     aspectRatio: 16 / 9,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.borderDark,
     borderStyle: 'dashed',
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   uploadPlaceholderText: {
     marginTop: 8,
-    fontSize: 13,
-    color: '#94a3b8',
-    fontWeight: '600',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
+    paddingVertical: theme.SIZES.sm,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -678,21 +667,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   gpsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#10b981',
+    backgroundColor: theme.COLORS.success,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
     gap: 4,
   },
   gpsButtonText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   btnIcon: {
     marginRight: 2,
@@ -701,65 +690,59 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   dayBadge: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   dayBadgeSelected: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#a78bfa',
+    backgroundColor: theme.COLORS.primary + '15',
+    borderColor: theme.COLORS.primary,
   },
   dayBadgeText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   dayBadgeTextSelected: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
   },
   kciHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   kciSubtitle: {
-    fontSize: 12,
-    color: '#64748b',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     marginTop: 2,
   },
   kciStatusBadge: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
     borderWidth: 1,
   },
   kciActive: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundColor: theme.COLORS.success + '20',
+    borderColor: theme.COLORS.success + '40',
   },
   kciPending: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fde68a',
+    backgroundColor: theme.COLORS.warning + '20',
+    borderColor: theme.COLORS.warning + '40',
   },
   kciStatusText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#065f46',
+    ...theme.TEXT.label,
+    fontWeight: theme.FONTS.bold,
   },
   saveBtnWrapper: {
-    borderRadius: 16,
-    shadowColor: '#7c3aed',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     marginTop: 10,
   },
   saveBtn: {
@@ -767,11 +750,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
   },
   saveBtnText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
 });

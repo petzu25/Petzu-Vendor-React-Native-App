@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import axiosInstance from '../../lib/axios';
+import theme from '../../constants/theme';
 
 export default function AdminClients() {
   const [clients, setClients] = useState([]);
@@ -74,10 +75,10 @@ export default function AdminClients() {
     return name.slice(0, 2).toUpperCase();
   };
 
-  const avatarColors = ['#7c3aed', '#0ea5e9', '#d97706', '#16a34a', '#dc2626', '#db2777'];
+  const avatarColors = [theme.COLORS.primary, '#0ea5e9', '#d97706', theme.COLORS.success, theme.COLORS.error, '#db2777'];
   const getColor = (client) => {
     const name = client.username || client.name || '';
-    return avatarColors[name.charCodeAt(0) % avatarColors.length] || '#7c3aed';
+    return avatarColors[name.charCodeAt(0) % avatarColors.length] || theme.COLORS.primary;
   };
 
   const renderClient = ({ item, index }) => (
@@ -163,7 +164,7 @@ export default function AdminClients() {
         }
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Feather name="users" size={48} color="#c4b5fd" />
+            <Feather name="users" size={48} color={theme.COLORS.primaryLight} />
             <Text style={styles.emptyTitle}>No Clients Found</Text>
             <Text style={styles.emptyText}>
               {search ? 'Try a different search term.' : 'No client records are available yet.'}
@@ -184,14 +185,14 @@ export default function AdminClients() {
               <View
                 style={[
                   styles.avatarLg,
-                  { backgroundColor: selectedClient ? getColor(selectedClient) : '#7c3aed' },
+                  { backgroundColor: selectedClient ? getColor(selectedClient) : theme.COLORS.primary },
                 ]}>
                 <Text style={styles.avatarTextLg}>
                   {selectedClient ? getInitials(selectedClient) : ''}
                 </Text>
               </View>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setModalVisible(false)}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -225,7 +226,7 @@ export default function AdminClients() {
                 value ? (
                   <View key={label} style={styles.modalRow}>
                     <View style={styles.modalIconWrap}>
-                      <Feather name={icon} size={15} color="#7c3aed" />
+                      <Feather name={icon} size={15} color={theme.COLORS.primary} />
                     </View>
                     <View>
                       <Text style={styles.modalLabel}>{label}</Text>
@@ -243,46 +244,40 @@ export default function AdminClients() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loadingText: { fontSize: 14, color: '#64748b', fontWeight: '500' },
+  container: { flex: 1, backgroundColor: theme.COLORS.canvas },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, backgroundColor: theme.COLORS.canvas },
+  loadingText: { ...theme.TEXT.bodySecondary },
 
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: theme.SIZES.md, paddingHorizontal: theme.SIZES.md, paddingTop: theme.SIZES.md },
   searchBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.sm,
+    height: theme.SIZES.inputHeight,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#334155', fontWeight: '500' },
+  searchInput: { flex: 1, ...theme.TEXT.body },
   countBadge: {
-    backgroundColor: '#7c3aed',
-    borderRadius: 10,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.md,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  countText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  countText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 13 },
 
-  list: { gap: 10, paddingBottom: 30 },
+  list: { gap: 12, paddingBottom: 30, paddingHorizontal: theme.SIZES.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
+    ...theme.SHADOWS.md,
   },
   avatar: {
     width: 46,
@@ -292,40 +287,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  avatarText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  avatarText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 16 },
   cardBody: { flex: 1 },
-  cardName: { fontSize: 15, fontWeight: '700', color: '#1e1b4b' },
-  cardSub: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  cardPhone: { fontSize: 12, color: '#94a3b8', marginTop: 1 },
+  cardName: { ...theme.TEXT.body, fontWeight: theme.FONTS.bold },
+  cardSub: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, marginTop: 2 },
+  cardPhone: { fontSize: 12, color: theme.COLORS.textSecondary, marginTop: 1 },
   statusBadge: {
     paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
   },
-  badgeActive: { backgroundColor: '#dcfce7' },
-  badgeInactive: { backgroundColor: '#fee2e2' },
-  statusText: { fontSize: 11, fontWeight: '700' },
-  statusTextActive: { color: '#16a34a' },
-  statusTextInactive: { color: '#dc2626' },
+  badgeActive: { backgroundColor: theme.COLORS.success + '20' },
+  badgeInactive: { backgroundColor: theme.COLORS.errorLight },
+  statusText: { fontSize: 11, fontWeight: theme.FONTS.bold, textTransform: 'uppercase' },
+  statusTextActive: { color: theme.COLORS.success },
+  statusTextInactive: { color: theme.COLORS.error },
 
   emptyBox: { alignItems: 'center', paddingTop: 60, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#334155' },
-  emptyText: { fontSize: 13, color: '#94a3b8', textAlign: 'center' },
+  emptyTitle: { ...theme.TEXT.h3 },
+  emptyText: { ...theme.TEXT.bodySecondary, textAlign: 'center' },
 
   // Modal
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.4)', justifyContent: 'flex-end' },
   modalCard: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
     maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   avatarLg: {
     width: 64,
@@ -334,26 +329,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarTextLg: { color: '#fff', fontWeight: '800', fontSize: 22 },
+  avatarTextLg: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 22 },
   closeBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalName: { fontSize: 20, fontWeight: '800', color: '#1e1b4b', marginBottom: 18 },
-  modalRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
+  modalName: { ...theme.TEXT.h2, marginBottom: 18 },
+  modalRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.SIZES.md },
   modalIconWrap: {
     width: 34,
     height: 34,
-    borderRadius: 10,
-    backgroundColor: '#f5f3ff',
+    borderRadius: theme.RADIUS.sm,
+    backgroundColor: theme.COLORS.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  modalLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  modalValue: { fontSize: 14, fontWeight: '600', color: '#334155', marginTop: 1 },
+  modalLabel: { ...theme.TEXT.label },
+  modalValue: { ...theme.TEXT.body, fontWeight: theme.FONTS.semiBold, marginTop: 1 },
 });

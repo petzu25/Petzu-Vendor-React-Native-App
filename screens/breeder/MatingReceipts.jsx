@@ -12,11 +12,11 @@ import {
   Modal,
   Image,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
+import theme from '../../constants/theme';
 
 const CATEGORIES = ['Dog', 'Cat'];
 
@@ -28,6 +28,7 @@ export default function MatingReceipts() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [formVisible, setFormVisible] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
   // ── Male Pet
@@ -139,6 +140,7 @@ export default function MatingReceipts() {
     setLockingPhotos([]);
     setMaleKciCert(null);
     setFemaleKciCert(null);
+    setCurrentStep(1);
     setFormVisible(true);
   };
 
@@ -185,8 +187,12 @@ export default function MatingReceipts() {
     setLockingPhotos(receipt.lockingPhotos || []);
     setMaleKciCert(receipt.maleKciCertificate || null);
     setFemaleKciCert(receipt.femaleKciCertificate || null);
+    setCurrentStep(1);
     setFormVisible(true);
   };
+
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 6));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handlePickFile = async (field) => {
     try {
@@ -385,6 +391,25 @@ export default function MatingReceipts() {
 
   const totalRevenue = receipts.reduce((sum, r) => sum + (Number(r.price) || 0), 0);
 
+  
+  const PillSelector = ({ label, options, selected, onSelect }) => (
+    <View style={styles.inputGroup}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View style={styles.pillContainer}>
+        {options.map((opt) => (
+          <TouchableOpacity
+            key={opt}
+            style={[styles.pill, selected === opt ? styles.pillSelected : null]}
+            onPress={() => onSelect(opt)}>
+            <Text style={[styles.pillText, selected === opt ? styles.pillTextSelected : null]}>
+              {opt}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
   const renderReceiptItem = ({ item }) => {
     return (
       <View style={styles.card}>
@@ -430,21 +455,21 @@ export default function MatingReceipts() {
               setBillVisible(true);
             }}
             style={[styles.actionBtn, styles.viewBtn]}>
-            <Feather name="file-text" size={14} color="#7c3aed" />
+            <Feather name="file-text" size={14} color={theme.COLORS.primary} />
             <Text style={styles.viewBtnText}>Invoice</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => handleOpenEdit(item)}
             style={[styles.actionBtn, styles.editBtn]}>
-            <Feather name="edit" size={14} color="#2563eb" />
+            <Feather name="edit" size={14} color={theme.COLORS.primary} />
             <Text style={styles.editBtnText}>Edit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => handleDelete(item._id)}
             style={[styles.actionBtn, styles.deleteBtn]}>
-            <Feather name="trash-2" size={14} color="#ef4444" />
+            <Feather name="trash-2" size={14} color={theme.COLORS.error} />
           </TouchableOpacity>
         </View>
       </View>
@@ -455,11 +480,7 @@ export default function MatingReceipts() {
     <View style={styles.container}>
       {/* Metric Revenue Banner */}
       <View style={styles.revenueBanner}>
-        <LinearGradient
-          colors={['#10b981', '#047857']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.bannerGradient}>
+        <View style={[styles.bannerGradient, { backgroundColor: theme.COLORS.success }]}>
           <View>
             <Text style={styles.revenueLabel}>Total Mating Services</Text>
             <Text style={styles.revenueValue}>₹{totalRevenue.toLocaleString()}</Text>
@@ -467,25 +488,25 @@ export default function MatingReceipts() {
           <View style={styles.revenueStats}>
             <Text style={styles.revenueStatsText}>{receipts.length} Sessions</Text>
           </View>
-        </LinearGradient>
+        </View>
       </View>
 
       {/* Search and Generate button */}
       <View style={styles.controlsRow}>
         <View style={styles.searchBar}>
-          <Feather name="search" size={16} color="#94a3b8" />
+          <Feather name="search" size={16} color={theme.COLORS.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search sessions history..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={theme.COLORS.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
         <TouchableOpacity
-          style={[styles.createBtn, { backgroundColor: '#10b981' }]}
+          style={[styles.createBtn, { backgroundcolor: theme.COLORS.success }]}
           onPress={handleOpenAdd}>
-          <Feather name="plus" size={16} color="#ffffff" />
+          <Feather name="plus" size={16} color={theme.COLORS.surface} />
           <Text style={styles.createBtnText}>Record Session</Text>
         </TouchableOpacity>
       </View>
@@ -493,7 +514,7 @@ export default function MatingReceipts() {
       {/* List */}
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#10b981" />
+          <ActivityIndicator size="large" color={theme.COLORS.success} />
           <Text style={styles.loadingText}>Loading sessions history...</Text>
         </View>
       ) : filteredReceipts.length > 0 ? (
@@ -507,7 +528,7 @@ export default function MatingReceipts() {
       ) : (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconBg}>
-            <Feather name="pocket" size={32} color="#10b981" />
+            <Feather name="pocket" size={32} color={theme.COLORS.success} />
           </View>
           <Text style={styles.emptyTitle}>No Sessions Recorded</Text>
           <Text style={styles.emptySubtitle}>
@@ -529,272 +550,386 @@ export default function MatingReceipts() {
                 {editingReceipt ? 'Edit Mating Invoice' : 'New Mating Invoicing'}
               </Text>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setFormVisible(false)}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.formScroll} showsVerticalScrollIndicator={false}>
-              <Text style={styles.sectionHeader}>Male Stud Details</Text>
-
-              <Text style={styles.inputLabel}>Male Category *</Text>
-              <View style={styles.pillContainer}>
-                {CATEGORIES.map((cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[
-                      styles.categoryPill,
-                      maleCategory === cat ? styles.categoryPillSelected : null,
-                    ]}
-                    onPress={() => setMaleCategory(cat)}>
-                    <Text
+              {/* Step Indicator */}
+              <View style={styles.stepsIndicator}>
+                {[1, 2, 3, 4, 5, 6].map((step) => (
+                  <View key={step} style={styles.stepIndicatorRow}>
+                    <View
                       style={[
-                        styles.categoryPillText,
-                        maleCategory === cat ? styles.categoryPillTextSelected : null,
+                        styles.stepDot,
+                        currentStep === step
+                          ? styles.stepDotActive
+                          : currentStep > step
+                            ? styles.stepDotCompleted
+                            : null,
                       ]}>
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <View style={styles.gridRow}>
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Male Breed *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={maleBreed}
-                    onChangeText={setMaleBreed}
-                    placeholder="e.g. Rottweiler"
-                    placeholderTextColor="#94a3b8"
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Male Name</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={maleName}
-                    onChangeText={setMaleName}
-                    placeholder="Stud name"
-                    placeholderTextColor="#94a3b8"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Male KCI Registration Number</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={maleKciNumber}
-                  onChangeText={setMaleKciNumber}
-                  placeholder="KCI reg number"
-                  placeholderTextColor="#94a3b8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Male Stud Photo</Text>
-                <TouchableOpacity
-                  style={styles.filePicker}
-                  onPress={() => handlePickFile('malePet')}>
-                  <Feather name="image" size={16} color="#7c3aed" />
-                  <Text style={styles.filePickerText}>
-                    {malePetPhoto ? 'Change Stud Photo' : 'Upload Stud Photo'}
-                  </Text>
-                </TouchableOpacity>
-                {malePetPhoto && (
-                  <View style={styles.fileThumbContainer}>
-                    <Image source={{ uri: malePetPhoto }} style={styles.fileThumb} />
-                    <TouchableOpacity
-                      style={styles.fileRemove}
-                      onPress={() => handleRemoveFile('malePet')}>
-                      <Feather name="x" size={12} color="#ffffff" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-
-              <Text style={styles.sectionHeader}>Female Pet Details</Text>
-
-              <Text style={styles.inputLabel}>Female Category *</Text>
-              <View style={styles.pillContainer}>
-                {CATEGORIES.map((cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[
-                      styles.categoryPill,
-                      femaleCategory === cat ? styles.categoryPillSelected : null,
-                    ]}
-                    onPress={() => setFemaleCategory(cat)}>
-                    <Text
-                      style={[
-                        styles.categoryPillText,
-                        femaleCategory === cat ? styles.categoryPillTextSelected : null,
-                      ]}>
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <View style={styles.gridRow}>
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Female Breed *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={femaleBreed}
-                    onChangeText={setFemaleBreed}
-                    placeholder="e.g. Rottweiler"
-                    placeholderTextColor="#94a3b8"
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Female Name</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={femaleName}
-                    onChangeText={setFemaleName}
-                    placeholder="Female name"
-                    placeholderTextColor="#94a3b8"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Female KCI Registration Number</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={femaleKciNumber}
-                  onChangeText={setFemaleKciNumber}
-                  placeholder="KCI reg number"
-                  placeholderTextColor="#94a3b8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Female Pet Photo</Text>
-                <TouchableOpacity
-                  style={styles.filePicker}
-                  onPress={() => handlePickFile('femalePet')}>
-                  <Feather name="image" size={16} color="#7c3aed" />
-                  <Text style={styles.filePickerText}>
-                    {femalePetPhoto ? 'Change Female Photo' : 'Upload Female Photo'}
-                  </Text>
-                </TouchableOpacity>
-                {femalePetPhoto && (
-                  <View style={styles.fileThumbContainer}>
-                    <Image source={{ uri: femalePetPhoto }} style={styles.fileThumb} />
-                    <TouchableOpacity
-                      style={styles.fileRemove}
-                      onPress={() => handleRemoveFile('femalePet')}>
-                      <Feather name="x" size={12} color="#ffffff" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-
-              <Text style={styles.sectionHeader}>Female Owner Information</Text>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Owner Full Name *</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={femaleOwnerName}
-                  onChangeText={setFemaleOwnerName}
-                  placeholder="Enter owner name"
-                  placeholderTextColor="#94a3b8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Owner Contact Phone (10 digits) *</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={femaleOwnerPhone}
-                  onChangeText={(text) => setFemaleOwnerPhone(text.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="Enter 10-digit number"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="phone-pad"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Owner Address</Text>
-                <TextInput
-                  style={[styles.textInput, styles.textArea]}
-                  value={femaleOwnerAddress}
-                  onChangeText={setFemaleOwnerAddress}
-                  placeholder="Owner full address details"
-                  placeholderTextColor="#94a3b8"
-                  multiline
-                  numberOfLines={2}
-                />
-              </View>
-
-              <Text style={styles.sectionHeader}>Invoicing & Proofs</Text>
-
-              <View style={styles.gridRow}>
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Mating Price Fee (INR) *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={price}
-                    onChangeText={setPrice}
-                    placeholder="Fee in ₹"
-                    placeholderTextColor="#94a3b8"
-                    keyboardType="numeric"
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Mating Date *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={matingDate}
-                    onChangeText={setMatingDate}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#94a3b8"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Mating Lock Photos (Max 3)</Text>
-                <TouchableOpacity
-                  style={styles.filePicker}
-                  onPress={() => handlePickFile('locking')}>
-                  <Feather name="camera" size={16} color="#10b981" />
-                  <Text style={[styles.filePickerText, { color: '#10b981' }]}>
-                    Upload Lock Photo
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.imagesGrid}>
-                  {lockingPhotos.map((uri, idx) => (
-                    <View key={idx} style={styles.imageItem}>
-                      <Image source={{ uri }} style={styles.imageThumbnail} />
-                      <TouchableOpacity
-                        style={styles.removeImageBtn}
-                        onPress={() => handleRemoveFile('locking', idx)}>
-                        <Feather name="x" size={14} color="#ffffff" />
-                      </TouchableOpacity>
+                      {currentStep > step ? (
+                        <Feather name="check" size={10} color={theme.COLORS.surface} />
+                      ) : (
+                        <Text
+                          style={[
+                            styles.stepDotText,
+                            currentStep === step ? styles.stepDotTextActive : null,
+                          ]}>
+                          {step}
+                        </Text>
+                      )}
                     </View>
-                  ))}
-                </View>
+                    {step < 6 && (
+                      <View
+                        style={[
+                          styles.stepLine,
+                          currentStep > step ? styles.stepLineCompleted : null,
+                        ]}
+                      />
+                    )}
+                  </View>
+                ))}
               </View>
 
-              <TouchableOpacity
-                style={[styles.saveInvoiceBtn, { backgroundColor: '#10b981' }]}
-                onPress={handleSave}
-                disabled={submitting}>
-                {submitting ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
+              {/* ── STEP 1: Male Stud Details ── */}
+              {currentStep === 1 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Male Stud Details</Text>
+
+                  <PillSelector
+                    label="Male Category *"
+                    options={CATEGORIES}
+                    selected={maleCategory}
+                    onSelect={setMaleCategory}
+                  />
+
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Male Breed *</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={maleBreed}
+                        onChangeText={setMaleBreed}
+                        placeholder="e.g. Rottweiler"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                      />
+                    </View>
+
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Male Name</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={maleName}
+                        onChangeText={setMaleName}
+                        placeholder="Stud name"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Male Owner Name *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={maleOwnerName}
+                      onChangeText={setMaleOwnerName}
+                      placeholder="e.g. John Doe"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Male Owner Phone *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={maleOwnerPhone}
+                      onChangeText={(text) => setMaleOwnerPhone(text.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="10-digit number"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+                </View>
+              )}
+
+              {/* ── STEP 2: Female Pet Details ── */}
+              {currentStep === 2 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Female Pet Details</Text>
+
+                  <PillSelector
+                    label="Female Category *"
+                    options={CATEGORIES}
+                    selected={femaleCategory}
+                    onSelect={setFemaleCategory}
+                  />
+
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Female Breed *</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={femaleBreed}
+                        onChangeText={setFemaleBreed}
+                        placeholder="e.g. Rottweiler"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                      />
+                    </View>
+
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Female Name</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={femaleName}
+                        onChangeText={setFemaleName}
+                        placeholder="Female name"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                      />
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* ── STEP 3: Female Owner Information ── */}
+              {currentStep === 3 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Female Owner Information</Text>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Owner Full Name *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={femaleOwnerName}
+                      onChangeText={setFemaleOwnerName}
+                      placeholder="Enter owner name"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Owner Contact Phone (10 digits) *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={femaleOwnerPhone}
+                      onChangeText={(text) => setFemaleOwnerPhone(text.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="Enter 10-digit number"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Owner Address</Text>
+                    <TextInput
+                      style={[styles.textInput, styles.textArea]}
+                      value={femaleOwnerAddress}
+                      onChangeText={setFemaleOwnerAddress}
+                      placeholder="Owner full address details"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      multiline
+                      numberOfLines={2}
+                    />
+                  </View>
+                </View>
+              )}
+
+              {/* ── STEP 4: Registration Info ── */}
+              {currentStep === 4 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Registration Information</Text>
+
+                  <Text style={styles.sectionSubTitle}>Male (Stud)</Text>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>KCI Registration Number</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={maleKciNumber}
+                      onChangeText={setMaleKciNumber}
+                      placeholder="KCI reg number"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Microchip Number</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={maleMicrochip}
+                      onChangeText={setMaleMicrochip}
+                      placeholder="Microchip code"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <Text style={styles.sectionSubTitle}>Female</Text>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>KCI Registration Number</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={femaleKciNumber}
+                      onChangeText={setFemaleKciNumber}
+                      placeholder="KCI reg number"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Microchip Number</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={femaleMicrochip}
+                      onChangeText={setFemaleMicrochip}
+                      placeholder="Microchip code"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+                </View>
+              )}
+
+              {/* ── STEP 5: Media Proofs ── */}
+              {currentStep === 5 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Media & Proofs</Text>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Male Stud Photo</Text>
+                    <TouchableOpacity
+                      style={styles.filePicker}
+                      onPress={() => handlePickFile('malePet')}>
+                      <Feather name="image" size={16} color={theme.COLORS.primary} />
+                      <Text style={styles.filePickerText}>
+                        {malePetPhoto ? 'Change Stud Photo' : 'Upload Stud Photo'}
+                      </Text>
+                    </TouchableOpacity>
+                    {malePetPhoto && (
+                      <View style={styles.fileThumbContainer}>
+                        <Image source={{ uri: malePetPhoto }} style={styles.fileThumb} />
+                        <TouchableOpacity
+                          style={styles.fileRemove}
+                          onPress={() => handleRemoveFile('malePet')}>
+                          <Feather name="x" size={12} color={theme.COLORS.surface} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Female Pet Photo</Text>
+                    <TouchableOpacity
+                      style={styles.filePicker}
+                      onPress={() => handlePickFile('femalePet')}>
+                      <Feather name="image" size={16} color={theme.COLORS.primary} />
+                      <Text style={styles.filePickerText}>
+                        {femalePetPhoto ? 'Change Female Photo' : 'Upload Female Photo'}
+                      </Text>
+                    </TouchableOpacity>
+                    {femalePetPhoto && (
+                      <View style={styles.fileThumbContainer}>
+                        <Image source={{ uri: femalePetPhoto }} style={styles.fileThumb} />
+                        <TouchableOpacity
+                          style={styles.fileRemove}
+                          onPress={() => handleRemoveFile('femalePet')}>
+                          <Feather name="x" size={12} color={theme.COLORS.surface} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Mating Lock Photos (Max 3)</Text>
+                    <TouchableOpacity
+                      style={styles.filePicker}
+                      onPress={() => handlePickFile('locking')}>
+                      <Feather name="camera" size={16} color={theme.COLORS.success} />
+                      <Text style={[styles.filePickerText, { color: theme.COLORS.success }]}>
+                        Upload Lock Photo
+                      </Text>
+                    </TouchableOpacity>
+                    <View style={styles.imagesGrid}>
+                      {lockingPhotos.map((uri, idx) => (
+                        <View key={idx} style={styles.imageItem}>
+                          <Image source={{ uri }} style={styles.imageThumbnail} />
+                          <TouchableOpacity
+                            style={styles.removeImageBtn}
+                            onPress={() => handleRemoveFile('locking', idx)}>
+                            <Feather name="x" size={14} color={theme.COLORS.surface} />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* ── STEP 6: Invoicing & Mating Details ── */}
+              {currentStep === 6 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Invoicing & Details</Text>
+
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Mating Price Fee (INR) *</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={price}
+                        onChangeText={setPrice}
+                        placeholder="Fee in ₹"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                        keyboardType="numeric"
+                      />
+                    </View>
+
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Mating Date *</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={matingDate}
+                        onChangeText={setMatingDate}
+                        placeholder="YYYY-MM-DD"
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Mating Location *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={matingLocation}
+                      onChangeText={setMatingLocation}
+                      placeholder="e.g. Gachibowli, Hyd"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+                </View>
+              )}
+
+              {/* Footer */}
+              <View style={styles.modalFooter}>
+                {currentStep > 1 ? (
+                  <TouchableOpacity style={styles.footerBackBtn} onPress={prevStep}>
+                    <Text style={styles.footerBackBtnText}>Back</Text>
+                  </TouchableOpacity>
                 ) : (
-                  <Text style={styles.saveInvoiceBtnText}>Record Engagement Receipt</Text>
+                  <View />
                 )}
-              </TouchableOpacity>
-              <View style={{ height: 40 }} />
-            </ScrollView>
+                {currentStep < 6 ? (
+                  <TouchableOpacity style={styles.footerNextBtn} onPress={nextStep}>
+                    <Text style={styles.footerNextBtnText}>Next</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.footerSaveBtn}
+                    onPress={handleSave}
+                    disabled={submitting}>
+                    {submitting ? (
+                      <ActivityIndicator size="small" color={theme.COLORS.surface} />
+                    ) : (
+                      <Text style={styles.footerSaveBtnText}>Generate Receipt</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
+</ScrollView>
           </View>
         </View>
       </Modal>
@@ -811,15 +946,15 @@ export default function MatingReceipts() {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Mating Stud Invoice Bill</Text>
                 <TouchableOpacity style={styles.closeBtn} onPress={() => setBillVisible(false)}>
-                  <Feather name="x" size={20} color="#64748b" />
+                  <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView style={styles.invoiceScroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.billSheet}>
                   <View style={styles.billHeader}>
-                    <Feather name="pocket" size={24} color="#10b981" />
-                    <Text style={[styles.billBrand, { color: '#10b981' }]}>
+                    <Feather name="pocket" size={24} color={theme.COLORS.success} />
+                    <Text style={[styles.billBrand, { color: theme.COLORS.success }]}>
                       PETZU breeding network
                     </Text>
                     <Text style={styles.billSerial}>
@@ -886,7 +1021,7 @@ export default function MatingReceipts() {
                   <View style={styles.calculationSection}>
                     <View style={[styles.calRow, { marginTop: 4 }]}>
                       <Text style={styles.grandLabel}>Mating Fee Due</Text>
-                      <Text style={[styles.grandVal, { color: '#10b981' }]}>
+                      <Text style={[styles.grandVal, { color: theme.COLORS.success }]}>
                         ₹{Number(selectedReceipt.price || 0).toLocaleString()}
                       </Text>
                     </View>
@@ -916,6 +1051,75 @@ export default function MatingReceipts() {
 }
 
 const styles = StyleSheet.create({
+  kciSubform: { backgroundColor: theme.COLORS.success + '10', borderRadius: theme.RADIUS.lg, padding: 14, marginBottom: 10 },
+  pillTextSelected: { color: theme.COLORS.surface },
+  pillText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.semiBold },
+  pillSelected: { backgroundColor: theme.COLORS.primary, borderColor: theme.COLORS.primary },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: theme.RADIUS.xxl,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+  },
+  footerSaveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerSaveBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.success,
+    alignItems: 'center',
+  },
+  footerNextBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerNextBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
+    alignItems: 'center',
+  },
+  footerBackBtnText: { color: theme.COLORS.textSecondary, fontWeight: theme.FONTS.bold },
+  footerBackBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    alignItems: 'center',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: theme.SIZES.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.COLORS.borderLight,
+    gap: 12,
+  },
+  stepHint: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, marginBottom: 14 },
+  stepTitle: { ...theme.TEXT.h3, marginBottom: 4 },
+  stepContainer: { paddingVertical: 10 },
+  stepLineCompleted: { backgroundColor: theme.COLORS.success },
+  stepLine: { width: 28, height: 2, backgroundColor: theme.COLORS.border },
+  stepDotTextActive: { color: theme.COLORS.surface },
+  stepDotText: { fontSize: 12, fontWeight: theme.FONTS.bold, color: theme.COLORS.textSecondary },
+  stepDotCompleted: { backgroundColor: theme.COLORS.success },
+  stepDotActive: { backgroundColor: theme.COLORS.primary },
+  stepDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepIndicatorRow: { flexDirection: 'row', alignItems: 'center' },
+  stepsIndicator: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
   container: {
     flex: 1,
   },
@@ -940,7 +1144,7 @@ const styles = StyleSheet.create({
   revenueValue: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#ffffff',
+    color: theme.COLORS.surface,
   },
   revenueStats: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
@@ -949,7 +1153,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   revenueStatsText: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
     fontWeight: '700',
     fontSize: 13,
   },
@@ -963,10 +1167,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundcolor: theme.COLORS.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
     height: 48,
     paddingHorizontal: 12,
     gap: 8,
@@ -974,7 +1178,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#1e293b',
+    color: theme.COLORS.text,
   },
   createBtn: {
     height: 48,
@@ -986,7 +1190,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   createBtnText: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -999,24 +1203,24 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
     fontWeight: '600',
   },
   listContent: {
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundcolor: theme.COLORS.surface,
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowcolor: theme.COLORS.text,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    bordercolor: theme.COLORS.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1027,16 +1231,16 @@ const styles = StyleSheet.create({
   receiptId: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#1e293b',
+    color: theme.COLORS.text,
   },
   receiptDate: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: theme.COLORS.textSecondary,
     marginTop: 2,
     fontWeight: '600',
   },
   totalBadge: {
-    backgroundColor: '#f0fdf4',
+    backgroundcolor: theme.COLORS.successLight,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 10,
@@ -1044,7 +1248,7 @@ const styles = StyleSheet.create({
   totalBadgeText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#10b981',
+    color: theme.COLORS.success,
   },
   cardBody: {
     gap: 6,
@@ -1056,18 +1260,18 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 13,
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
     fontWeight: '600',
   },
   infoVal: {
     fontSize: 13,
-    color: '#1e293b',
+    color: theme.COLORS.text,
     fontWeight: '700',
     flex: 1,
   },
   cardDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundcolor: theme.COLORS.border,
     marginBottom: 12,
   },
   cardActions: {
@@ -1085,20 +1289,20 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   viewBtn: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#ddd6fe',
+    backgroundcolor: theme.COLORS.primaryLight,
+    bordercolor: theme.COLORS.borderDark,
   },
   viewBtnText: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
     fontSize: 12,
     fontWeight: '700',
   },
   editBtn: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    backgroundcolor: theme.COLORS.primaryLight,
+    bordercolor: theme.COLORS.borderDark,
   },
   editBtnText: {
-    color: '#2563eb',
+    color: theme.COLORS.primary,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -1106,15 +1310,15 @@ const styles = StyleSheet.create({
     width: 36,
     paddingHorizontal: 0,
     justifyContent: 'center',
-    backgroundColor: '#fef2f2',
-    borderColor: '#fca5a5',
+    backgroundcolor: theme.COLORS.errorLight,
+    bordercolor: theme.COLORS.error,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#ffffff',
+    backgroundcolor: theme.COLORS.surface,
     borderRadius: 24,
     marginTop: 20,
     minHeight: 250,
@@ -1123,7 +1327,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#ecfdf5',
+    backgroundcolor: theme.COLORS.successLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -1131,12 +1335,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1e293b',
+    color: theme.COLORS.text,
     marginBottom: 6,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -1147,7 +1351,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   formContainer: {
-    backgroundColor: '#ffffff',
+    backgroundcolor: theme.COLORS.surface,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     height: '85%',
@@ -1163,12 +1367,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    bordercolor: theme.COLORS.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#1e293b',
+    color: theme.COLORS.text,
   },
   formScroll: {
     padding: 24,
@@ -1176,11 +1380,11 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#10b981',
+    color: theme.COLORS.success,
     marginTop: 10,
     marginBottom: 16,
     borderLeftWidth: 3,
-    borderColor: '#10b981',
+    bordercolor: theme.COLORS.success,
     paddingLeft: 8,
   },
   inputGroup: {
@@ -1189,18 +1393,18 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#475569',
+    color: theme.COLORS.textSecondary,
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: '#f8fafc',
+    backgroundcolor: theme.COLORS.canvas,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#1e293b',
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 60,
@@ -1215,22 +1419,22 @@ const styles = StyleSheet.create({
   categoryPill: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundcolor: theme.COLORS.border,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
   },
   categoryPillSelected: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundcolor: theme.COLORS.successLight,
+    bordercolor: theme.COLORS.success,
   },
   categoryPillText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: theme.COLORS.textSecondary,
   },
   categoryPillTextSelected: {
-    color: '#059669',
+    color: theme.COLORS.success,
   },
   gridRow: {
     flexDirection: 'row',
@@ -1244,31 +1448,31 @@ const styles = StyleSheet.create({
   genderOption: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundcolor: theme.COLORS.border,
     borderRadius: 10,
     marginRight: 6,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
   genderOptionActive: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundcolor: theme.COLORS.successLight,
+    bordercolor: theme.COLORS.success,
   },
   genderOptionText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
   },
   genderOptionTextActive: {
-    color: '#059669',
+    color: theme.COLORS.success,
   },
   filePicker: {
-    backgroundColor: '#f8fafc',
+    backgroundcolor: theme.COLORS.canvas,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#cbd5e1',
+    bordercolor: theme.COLORS.borderDark,
     borderRadius: 12,
     paddingVertical: 12,
     justifyContent: 'center',
@@ -1279,7 +1483,7 @@ const styles = StyleSheet.create({
   filePickerText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
   },
   fileThumbContainer: {
     marginTop: 8,
@@ -1289,7 +1493,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
   },
   fileThumb: {
     width: '100%',
@@ -1342,13 +1546,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   saveInvoiceBtnText: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
     fontWeight: '700',
     fontSize: 15,
   },
   // Invoice Sheet styling
   invoiceSheet: {
-    backgroundColor: '#ffffff',
+    backgroundcolor: theme.COLORS.surface,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     height: '90%',
@@ -1359,10 +1563,10 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   billSheet: {
-    backgroundColor: '#f8fafc',
+    backgroundcolor: theme.COLORS.canvas,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
     padding: 20,
     marginBottom: 40,
   },
@@ -1380,12 +1584,12 @@ const styles = StyleSheet.create({
   billSerial: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1e293b',
+    color: theme.COLORS.text,
     marginTop: 4,
   },
   billDivider: {
     height: 1.5,
-    backgroundColor: '#e2e8f0',
+    backgroundcolor: theme.COLORS.borderDark,
     marginVertical: 16,
     borderStyle: 'dashed',
   },
@@ -1400,25 +1604,25 @@ const styles = StyleSheet.create({
   partyTitle: {
     fontSize: 10,
     fontWeight: '850',
-    color: '#94a3b8',
+    color: theme.COLORS.textSecondary,
     marginBottom: 6,
     letterSpacing: 0.5,
   },
   partyName: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#1e293b',
+    color: theme.COLORS.text,
     marginBottom: 2,
   },
   partyText: {
     fontSize: 12,
-    color: '#475569',
+    color: theme.COLORS.textSecondary,
     lineHeight: 16,
   },
   billSectionTitle: {
     fontSize: 12,
     fontWeight: '850',
-    color: '#94a3b8',
+    color: theme.COLORS.textSecondary,
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -1429,16 +1633,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    bordercolor: theme.COLORS.border,
   },
   billItemName: {
     fontSize: 13,
     fontWeight: '750',
-    color: '#1e293b',
+    color: theme.COLORS.text,
   },
   billItemDesc: {
     fontSize: 11,
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
     marginTop: 2,
   },
   calculationSection: {
@@ -1452,7 +1656,7 @@ const styles = StyleSheet.create({
   },
   grandLabel: {
     fontSize: 14,
-    color: '#1e293b',
+    color: theme.COLORS.text,
     fontWeight: '850',
   },
   grandVal: {
@@ -1468,6 +1672,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    bordercolor: theme.COLORS.borderDark,
   },
 });

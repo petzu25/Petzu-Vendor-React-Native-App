@@ -12,11 +12,11 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
+import theme from '../../constants/theme';
 
 const CATEGORIES = ['Dog', 'Cat'];
 const GENDERS = ['Male', 'Female'];
@@ -34,6 +34,7 @@ export default function MatingPets() {
   // Form Modal States
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPet, setEditingPet] = useState(null);
+  const [currentStep, setCurrentStep] = useState(1);
 
   // ── Form Fields ──
   const [formBreedName, setFormBreedName] = useState('');
@@ -108,6 +109,7 @@ export default function MatingPets() {
     setFormImages([]);
     setVaccinationProof([]);
     setKciCertImages([]);
+    setCurrentStep(1);
     setModalVisible(true);
   };
 
@@ -134,8 +136,12 @@ export default function MatingPets() {
     setFormImages(pet.photosAndVideos || []);
     setVaccinationProof(pet.vaccinationProof || []);
     setKciCertImages(pet.kciCertificate || []);
+    setCurrentStep(1);
     setModalVisible(true);
   };
+
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 3));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handlePickImages = async (type) => {
     try {
@@ -305,6 +311,49 @@ export default function MatingPets() {
       (pet.category || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  
+  const PillSelector = ({ label, options, selected, onSelect }) => (
+    <View style={styles.inputGroup}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View style={styles.pillContainer}>
+        {options.map((opt) => (
+          <TouchableOpacity
+            key={opt}
+            style={[styles.pill, selected === opt ? styles.pillSelected : null]}
+            onPress={() => onSelect(opt)}>
+            <Text style={[styles.pillText, selected === opt ? styles.pillTextSelected : null]}>
+              {opt}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
+  const ImageGrid = ({ images, onAdd, onRemove, label, limit = 5 }) => (
+    <View style={styles.inputGroup}>
+      <Text style={styles.inputLabel}>
+        {label} (Max {limit})
+      </Text>
+      <TouchableOpacity style={styles.photoPicker} onPress={onAdd}>
+        <Feather name="camera" size={22} color={theme.COLORS.primary} />
+        <Text style={styles.photoPickerText}>Select From Gallery</Text>
+      </TouchableOpacity>
+      {images.length > 0 && (
+        <View style={styles.imagesGrid}>
+          {images.map((uri, index) => (
+            <View key={index} style={styles.imageItem}>
+              <Image source={{ uri }} style={styles.imageThumbnail} />
+              <TouchableOpacity style={styles.removeImageBtn} onPress={() => onRemove(index)}>
+                <Feather name="x" size={14} color={theme.COLORS.surface} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+
   const renderPetCard = ({ item }) => {
     const mainPhoto =
       item.photosAndVideos && item.photosAndVideos.length > 0 ? item.photosAndVideos[0] : null;
@@ -317,7 +366,7 @@ export default function MatingPets() {
             <Image source={{ uri: mainPhoto }} style={styles.cardImage} />
           ) : (
             <View style={styles.placeholderCardImage}>
-              <Feather name="image" size={32} color="#cbd5e1" />
+              <Feather name="image" size={32} color={theme.COLORS.borderDark} />
             </View>
           )}
           <View
@@ -348,11 +397,11 @@ export default function MatingPets() {
 
           <View style={styles.cardMetaRow}>
             <View style={styles.metaItem}>
-              <Feather name="clock" size={12} color="#64748b" />
+              <Feather name="clock" size={12} color={theme.COLORS.textSecondary} />
               <Text style={styles.metaText}>Age: {item.age}</Text>
             </View>
             <View style={styles.metaItem}>
-              <Feather name="map-pin" size={12} color="#64748b" />
+              <Feather name="map-pin" size={12} color={theme.COLORS.textSecondary} />
               <Text style={styles.metaText} numberOfLines={1}>
                 {item.location}
               </Text>
@@ -368,13 +417,13 @@ export default function MatingPets() {
                 setViewModalVisible(true);
               }}
               style={[styles.cardBtn, styles.viewBtn]}>
-              <Feather name="eye" size={14} color="#7c3aed" />
+              <Feather name="eye" size={14} color={theme.COLORS.primary} />
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => handleOpenEdit(item)}
               style={[styles.cardBtn, styles.editBtn]}>
-              <Feather name="edit-2" size={14} color="#2563eb" />
+              <Feather name="edit-2" size={14} color={theme.COLORS.primary} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -394,7 +443,7 @@ export default function MatingPets() {
             <TouchableOpacity
               onPress={() => handleDelete(item._id)}
               style={[styles.cardBtn, styles.trashBtn]}>
-              <Feather name="trash-2" size={14} color="#ef4444" />
+              <Feather name="trash-2" size={14} color={theme.COLORS.error} />
             </TouchableOpacity>
           </View>
         </View>
@@ -407,31 +456,27 @@ export default function MatingPets() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.searchBarContainer}>
-          <Feather name="search" size={16} color="#94a3b8" style={styles.searchIcon} />
+          <Feather name="search" size={16} color={theme.COLORS.textSecondary} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search mating listings..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={theme.COLORS.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
         <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-          <LinearGradient
-            colors={['#7c3aed', '#2563eb']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.addBtnGradient}>
-            <Feather name="plus" size={18} color="#ffffff" style={styles.addBtnIcon} />
+          <View style={styles.addBtnGradient}>
+            <Feather name="plus" size={18} color={theme.COLORS.surface} style={styles.addBtnIcon} />
             <Text style={styles.addBtnText}>Add Mating</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
 
       {/* Main List */}
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#7c3aed" />
+          <ActivityIndicator size="large" color={theme.COLORS.primary} />
           <Text style={styles.loadingText}>Fetching mating profiles...</Text>
         </View>
       ) : filteredPets.length > 0 ? (
@@ -445,7 +490,7 @@ export default function MatingPets() {
       ) : (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconBg}>
-            <Feather name="activity" size={32} color="#7c3aed" />
+            <Feather name="activity" size={32} color={theme.COLORS.primary} />
           </View>
           <Text style={styles.emptyTitle}>No Mating Profiles</Text>
           <Text style={styles.emptySubtitle}>
@@ -467,152 +512,308 @@ export default function MatingPets() {
                 {editingPet ? 'Edit Mating Stud' : 'Register Stud for Mating'}
               </Text>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setModalVisible(false)}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              <Text style={styles.inputLabel}>Pet Category *</Text>
-              <View style={styles.pillContainer}>
-                {CATEGORIES.map((cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[
-                      styles.categoryPill,
-                      formCategory === cat ? styles.categoryPillSelected : null,
-                    ]}
-                    onPress={() => setFormCategory(cat)}>
-                    <Text
+              {/* Step Indicator */}
+              <View style={styles.stepsIndicator}>
+                {[1, 2, 3].map((step) => (
+                  <View key={step} style={styles.stepIndicatorRow}>
+                    <View
                       style={[
-                        styles.categoryPillText,
-                        formCategory === cat ? styles.categoryPillTextSelected : null,
+                        styles.stepDot,
+                        currentStep === step
+                          ? styles.stepDotActive
+                          : currentStep > step
+                            ? styles.stepDotCompleted
+                            : null,
                       ]}>
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
+                      {currentStep > step ? (
+                        <Feather name="check" size={10} color={theme.COLORS.surface} />
+                      ) : (
+                        <Text
+                          style={[
+                            styles.stepDotText,
+                            currentStep === step ? styles.stepDotTextActive : null,
+                          ]}>
+                          {step}
+                        </Text>
+                      )}
+                    </View>
+                    {step < 3 && (
+                      <View
+                        style={[
+                          styles.stepLine,
+                          currentStep > step ? styles.stepLineCompleted : null,
+                        ]}
+                      />
+                    )}
+                  </View>
                 ))}
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Breed Name *</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formBreedName}
-                  onChangeText={setFormBreedName}
-                  placeholder="e.g. Siberian Husky"
-                  placeholderTextColor="#94a3b8"
-                />
-              </View>
+              {/* ── STEP 1: Pet Details & Media ── */}
+              {currentStep === 1 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Pet Details & Media</Text>
+                  
+                  <PillSelector
+                    label="Pet Category *"
+                    options={CATEGORIES}
+                    selected={formCategory}
+                    onSelect={setFormCategory}
+                  />
 
-              <View style={styles.gridRow}>
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Date of Birth *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={dateOfBirth}
-                    onChangeText={setDateOfBirth}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#94a3b8"
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Breed Name *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={formBreedName}
+                      onChangeText={setFormBreedName}
+                      placeholder="e.g. Siberian Husky"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Pet Name (Optional)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={petName}
+                      onChangeText={setPetName}
+                      placeholder="e.g. Max"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <PillSelector
+                    label="Gender *"
+                    options={GENDERS}
+                    selected={formGender}
+                    onSelect={setFormGender}
+                  />
+
+                  <PillSelector
+                    label="Pet Quality"
+                    options={QUALITIES}
+                    selected={petQuality}
+                    onSelect={setPetQuality}
+                  />
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Mating Fee (INR - Leave blank if negotiable)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={formPrice}
+                      onChangeText={setFormPrice}
+                      placeholder="e.g. 10000"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
+
+                  <ImageGrid
+                    label="Stud Photos"
+                    images={formImages}
+                    onAdd={() => handlePickImages('images')}
+                    onRemove={(idx) => handleRemoveImage(idx, 'images')}
+                    limit={5}
                   />
                 </View>
+              )}
 
-                <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Stud Location *</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={formLocation}
-                    onChangeText={setFormLocation}
-                    placeholder="e.g. Gachibowli, Hyd"
-                    placeholderTextColor="#94a3b8"
+              {/* ── STEP 2: Health & Availability ── */}
+              {currentStep === 2 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Health & Lineage</Text>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Date of Birth * (YYYY-MM-DD)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={dateOfBirth}
+                      onChangeText={setDateOfBirth}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <PillSelector
+                    label="Breeding Lineage"
+                    options={LINEAGES}
+                    selected={breedLineage}
+                    onSelect={setBreedLineage}
                   />
-                </View>
-              </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Mating Fee (INR - Leave blank if negotiable)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formPrice}
-                  onChangeText={setFormPrice}
-                  placeholder="e.g. 10000"
-                  placeholderTextColor="#94a3b8"
-                  keyboardType="numeric"
-                />
-              </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Vaccination Status / Details</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={vaccinationDetails}
+                      onChangeText={setVaccinationDetails}
+                      placeholder="e.g. Fully vaccinated"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Stud Photos (Max 5)</Text>
-                <TouchableOpacity
-                  style={styles.photoPicker}
-                  onPress={() => handlePickImages('images')}>
-                  <Feather name="camera" size={20} color="#7c3aed" />
-                  <Text style={styles.photoPickerText}>Add Stud Photos</Text>
-                </TouchableOpacity>
+                  <PillSelector
+                    label="KCI Certificate Status"
+                    options={KCI_STATUSES}
+                    selected={kciStatusPet}
+                    onSelect={setKciStatusPet}
+                  />
 
-                <View style={styles.imagesGrid}>
-                  {formImages.map((uri, index) => (
-                    <View key={index} style={styles.imageItem}>
-                      <Image source={{ uri }} style={styles.imageThumbnail} />
-                      <TouchableOpacity
-                        style={styles.removeImageBtn}
-                        onPress={() => handleRemoveImage(index, 'images')}>
-                        <Feather name="x" size={14} color="#ffffff" />
-                      </TouchableOpacity>
+                  {kciStatusPet === 'KCI Pet' && (
+                    <View style={styles.kciSubform}>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>KCI Registration Number</Text>
+                        <TextInput
+                          style={styles.textInput}
+                          value={kciNumber}
+                          onChangeText={setKciNumber}
+                          placeholder="Enter KCI Reg No"
+                          placeholderTextColor={theme.COLORS.textSecondary}
+                        />
+                      </View>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>KCI Registered Name</Text>
+                        <TextInput
+                          style={styles.textInput}
+                          value={kciName}
+                          onChangeText={setKciName}
+                          placeholder="Enter Registered Name"
+                          placeholderTextColor={theme.COLORS.textSecondary}
+                        />
+                      </View>
                     </View>
-                  ))}
+                  )}
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Microchip Number (Optional)</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={microchipNumber}
+                      onChangeText={setMicrochipNumber}
+                      placeholder="15-digit Microchip No"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
+
+                  <ImageGrid
+                    label="Vaccination Proof"
+                    images={vaccinationProof}
+                    onAdd={() => handlePickImages('vax')}
+                    onRemove={(idx) => handleRemoveImage(idx, 'vax')}
+                    limit={3}
+                  />
+                  
+                  {kciStatusPet === 'KCI Pet' && (
+                    <ImageGrid
+                      label="KCI Certificate"
+                      images={kciCertImages}
+                      onAdd={() => handlePickImages('kci')}
+                      onRemove={(idx) => handleRemoveImage(idx, 'kci')}
+                      limit={3}
+                    />
+                  )}
                 </View>
-              </View>
+              )}
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Vaccination Proof Certificates</Text>
-                <TouchableOpacity
-                  style={styles.photoPicker}
-                  onPress={() => handlePickImages('vax')}>
-                  <Feather name="shield" size={20} color="#10b981" />
-                  <Text style={[styles.photoPickerText, { color: '#10b981' }]}>
-                    Upload Vaccination Proof
-                  </Text>
-                </TouchableOpacity>
+              {/* ── STEP 3: Owner & Location ── */}
+              {currentStep === 3 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Owner & Location</Text>
 
-                <View style={styles.imagesGrid}>
-                  {vaccinationProof.map((uri, index) => (
-                    <View key={index} style={styles.imageItem}>
-                      <Image source={{ uri }} style={styles.imageThumbnail} />
-                      <TouchableOpacity
-                        style={styles.removeImageBtn}
-                        onPress={() => handleRemoveImage(index, 'vax')}>
-                        <Feather name="x" size={14} color="#ffffff" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Breeder / Owner Name *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={breederName}
+                      onChangeText={setBreederName}
+                      placeholder="Your full name"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Phone Number *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={phoneNum}
+                      onChangeText={setPhoneNum}
+                      placeholder="10-digit mobile number"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Stud Location *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={formLocation}
+                      onChangeText={setFormLocation}
+                      placeholder="e.g. Gachibowli, Hyd"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Shop Address</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={shopAddress}
+                      onChangeText={setShopAddress}
+                      placeholder="Complete address"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Stud Features & Details</Text>
+                    <TextInput
+                      style={[styles.textInput, styles.textArea]}
+                      value={formDescription}
+                      onChangeText={setFormDescription}
+                      placeholder="Describe your stud's line, health, temperament, etc."
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      multiline
+                      numberOfLines={4}
+                    />
+                  </View>
                 </View>
-              </View>
+              )}
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Stud Features & Details</Text>
-                <TextInput
-                  style={[styles.textInput, styles.textArea]}
-                  value={formDescription}
-                  onChangeText={setFormDescription}
-                  placeholder="Describe your stud's line, health, certificates (KCI), temperament, etc."
-                  placeholderTextColor="#94a3b8"
-                  multiline
-                  numberOfLines={4}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={styles.footerSaveBtnLarge}
-                onPress={handleSave}
-                disabled={submitting}>
-                {submitting ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
+              {/* Footer */}
+              <View style={styles.modalFooter}>
+                {currentStep > 1 ? (
+                  <TouchableOpacity style={styles.footerBackBtn} onPress={prevStep}>
+                    <Text style={styles.footerBackBtnText}>Back</Text>
+                  </TouchableOpacity>
                 ) : (
-                  <Text style={styles.footerSaveBtnTextLarge}>Register Stud Profile</Text>
+                  <View />
                 )}
-              </TouchableOpacity>
-              <View style={{ height: 40 }} />
-            </ScrollView>
+                {currentStep < 3 ? (
+                  <TouchableOpacity style={styles.footerNextBtn} onPress={nextStep}>
+                    <Text style={styles.footerNextBtnText}>Next</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.footerSaveBtn}
+                    onPress={handleSave}
+                    disabled={submitting}>
+                    {submitting ? (
+                      <ActivityIndicator size="small" color={theme.COLORS.surface} />
+                    ) : (
+                      <Text style={styles.footerSaveBtnText}>Register Stud Profile</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+              </View>
+</ScrollView>
           </View>
         </View>
       </Modal>
@@ -631,7 +832,7 @@ export default function MatingPets() {
                 <TouchableOpacity
                   style={styles.closeBtn}
                   onPress={() => setViewModalVisible(false)}>
-                  <Feather name="x" size={20} color="#64748b" />
+                  <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -647,7 +848,7 @@ export default function MatingPets() {
                   </ScrollView>
                 ) : (
                   <View style={styles.viewMainPlaceholder}>
-                    <Feather name="image" size={48} color="#cbd5e1" />
+                    <Feather name="image" size={48} color={theme.COLORS.borderDark} />
                     <Text style={styles.placeholderText}>No Photos Available</Text>
                   </View>
                 )}
@@ -718,86 +919,155 @@ export default function MatingPets() {
 }
 
 const styles = StyleSheet.create({
+  kciSubform: { backgroundColor: theme.COLORS.success + '10', borderRadius: theme.RADIUS.lg, padding: 14, marginBottom: 10 },
+  pillTextSelected: { color: theme.COLORS.surface },
+  pillText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.semiBold },
+  pillSelected: { backgroundColor: theme.COLORS.primary, borderColor: theme.COLORS.primary },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: theme.RADIUS.xxl,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+  },
+  footerSaveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerSaveBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.success,
+    alignItems: 'center',
+  },
+  footerNextBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerNextBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
+    alignItems: 'center',
+  },
+  footerBackBtnText: { color: theme.COLORS.textSecondary, fontWeight: theme.FONTS.bold },
+  footerBackBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    alignItems: 'center',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: theme.SIZES.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.COLORS.borderLight,
+    gap: 12,
+  },
+  stepHint: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, marginBottom: 14 },
+  stepTitle: { ...theme.TEXT.h3, marginBottom: 4 },
+  stepContainer: { paddingVertical: 10 },
+  stepLineCompleted: { backgroundColor: theme.COLORS.success },
+  stepLine: { width: 28, height: 2, backgroundColor: theme.COLORS.border },
+  stepDotTextActive: { color: theme.COLORS.surface },
+  stepDotText: { fontSize: 12, fontWeight: theme.FONTS.bold, color: theme.COLORS.textSecondary },
+  stepDotCompleted: { backgroundColor: theme.COLORS.success },
+  stepDotActive: { backgroundColor: theme.COLORS.primary },
+  stepDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepIndicatorRow: { flexDirection: 'row', alignItems: 'center' },
+  stepsIndicator: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
     gap: 12,
+    paddingHorizontal: theme.SIZES.md,
+    paddingTop: theme.SIZES.md,
   },
   searchBarContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingHorizontal: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    height: 48,
+    borderColor: theme.COLORS.border,
+    height: theme.SIZES.inputHeight,
   },
   searchIcon: {
     marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
+    fontWeight: theme.FONTS.medium,
   },
   addBtn: {
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.lg,
     overflow: 'hidden',
   },
   addBtnGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    height: 48,
-    borderRadius: 12,
+    height: theme.SIZES.inputHeight,
+    backgroundColor: theme.COLORS.primary,
   },
   addBtnIcon: {
     marginRight: 6,
   },
   addBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 14,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   listContent: {
     paddingBottom: 20,
+    paddingHorizontal: theme.SIZES.md,
   },
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    marginBottom: 16,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    marginBottom: theme.SIZES.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    ...theme.SHADOWS.sm,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.border,
   },
   imageWrapper: {
     height: 180,
     width: '100%',
     position: 'relative',
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
   },
   cardImage: {
     width: '100%',
@@ -815,22 +1085,22 @@ const styles = StyleSheet.create({
     right: 12,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xxl,
     borderWidth: 1,
   },
   badgeActive: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundColor: theme.COLORS.success + '20',
+    borderColor: theme.COLORS.success + '40',
   },
   badgeInactive: {
-    backgroundColor: '#fee2e2',
-    borderColor: '#fca5a5',
+    backgroundColor: theme.COLORS.error + '20',
+    borderColor: theme.COLORS.error + '40',
   },
   availabilityBadgeText: {
     fontSize: 10,
-    fontWeight: '900',
+    fontWeight: theme.FONTS.black,
     letterSpacing: 0.5,
-    color: '#065f46',
+    color: theme.COLORS.success,
   },
   cardPriceBadge: {
     position: 'absolute',
@@ -839,15 +1109,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.75)',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
   },
   cardPriceText: {
-    color: '#ffffff',
-    fontWeight: '800',
-    fontSize: 14,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   cardDetails: {
-    padding: 16,
+    padding: theme.SIZES.md,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -856,24 +1126,22 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardBreed: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
     flex: 1,
     marginRight: 8,
   },
   categoryBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: theme.COLORS.primary + '15',
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xxl,
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: theme.COLORS.primary + '30',
   },
   categoryBadgeText: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#2563eb',
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.primary,
   },
   cardMetaRow: {
     flexDirection: 'row',
@@ -887,13 +1155,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   metaText: {
-    fontSize: 13,
-    color: '#64748b',
-    fontWeight: '500',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.medium,
   },
   cardDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.borderLight,
     marginBottom: 12,
   },
   cardActions: {
@@ -904,38 +1171,38 @@ const styles = StyleSheet.create({
   cardBtn: {
     width: 38,
     height: 38,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
   },
   viewBtn: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#ddd6fe',
+    backgroundColor: theme.COLORS.primary + '15',
+    borderColor: theme.COLORS.primary + '30',
   },
   editBtn: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    backgroundColor: theme.COLORS.secondary + '20',
+    borderColor: theme.COLORS.secondary + '40',
   },
   activeToggleBtn: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fde68a',
+    backgroundColor: theme.COLORS.warning + '20',
+    borderColor: theme.COLORS.warning + '40',
   },
   inactiveToggleBtn: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundColor: theme.COLORS.success + '20',
+    borderColor: theme.COLORS.success + '40',
   },
   trashBtn: {
-    backgroundColor: '#fef2f2',
-    borderColor: '#fca5a5',
+    backgroundColor: theme.COLORS.error + '20',
+    borderColor: theme.COLORS.error + '40',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
+    padding: theme.SIZES.xl,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
     marginTop: 20,
     minHeight: 250,
   },
@@ -943,20 +1210,17 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#f5f3ff',
+    backgroundColor: theme.COLORS.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h2,
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: '#64748b',
+    ...theme.TEXT.bodySecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -967,81 +1231,72 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '85%',
     paddingTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    ...theme.SHADOWS.lg,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingBottom: theme.SIZES.md,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
   },
   closeBtn: {
     padding: 4,
   },
   modalScroll: {
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   inputLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   pillContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   categoryPill: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   categoryPillSelected: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#a78bfa',
+    backgroundColor: theme.COLORS.primary + '15',
+    borderColor: theme.COLORS.primary,
   },
   categoryPillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   categoryPillTextSelected: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   textInput: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
     paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 80,
@@ -1058,33 +1313,32 @@ const styles = StyleSheet.create({
   photoPicker: {
     width: '100%',
     height: 60,
-    borderWidth: 2,
-    borderColor: '#ddd6fe',
+    borderWidth: 1,
+    borderColor: theme.COLORS.primary + '40',
     borderStyle: 'dashed',
-    borderRadius: 14,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f3ff',
-    marginBottom: 16,
+    backgroundColor: theme.COLORS.primary + '10',
+    marginBottom: theme.SIZES.md,
     flexDirection: 'row',
     gap: 8,
   },
   photoPickerText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#7c3aed',
+    ...theme.TEXT.label,
+    color: theme.COLORS.primary,
   },
   imagesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   imageItem: {
     position: 'relative',
     width: 68,
     height: 68,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.md,
     overflow: 'hidden',
   },
   imageThumbnail: {
@@ -1104,22 +1358,22 @@ const styles = StyleSheet.create({
   },
   footerSaveBtnLarge: {
     paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: '#7c3aed',
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
   },
   footerSaveBtnTextLarge: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   // View Details Modal Styling
   viewContainer: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '90%',
     paddingTop: 20,
   },
@@ -1127,35 +1381,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageScrollRow: {
-    paddingHorizontal: 24,
-    marginVertical: 16,
+    paddingHorizontal: theme.SIZES.lg,
+    marginVertical: theme.SIZES.md,
   },
   viewMainImage: {
     width: 280,
     height: 180,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     marginRight: 12,
     resizeMode: 'cover',
   },
   viewMainPlaceholder: {
     height: 180,
-    backgroundColor: '#f8fafc',
-    marginHorizontal: 24,
-    borderRadius: 16,
+    backgroundColor: theme.COLORS.canvas,
+    marginHorizontal: theme.SIZES.lg,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    marginVertical: 16,
+    borderColor: theme.COLORS.borderDark,
+    marginVertical: theme.SIZES.md,
   },
   placeholderText: {
-    color: '#94a3b8',
-    fontWeight: '600',
-    fontSize: 13,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
     marginTop: 8,
   },
   infoSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: theme.SIZES.lg,
     paddingBottom: 40,
   },
   breedPriceRow: {
@@ -1165,16 +1418,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   viewBreed: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#1e293b',
+    ...theme.TEXT.h2,
     flex: 1,
     marginRight: 16,
   },
   viewPrice: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#7c3aed',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.primary,
   },
   categoryRow: {
     flexDirection: 'row',
@@ -1185,13 +1435,12 @@ const styles = StyleSheet.create({
   badgeInfo: {
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xxl,
     borderWidth: 1,
   },
   badgeInfoText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#065f46',
+    ...theme.TEXT.label,
+    color: theme.COLORS.success,
   },
   infoCardGrid: {
     flexDirection: 'row',
@@ -1202,23 +1451,21 @@ const styles = StyleSheet.create({
   infoCardItem: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     padding: 12,
-    borderRadius: 14,
+    borderRadius: theme.RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   infoCardLabel: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '700',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     textTransform: 'uppercase',
     marginBottom: 2,
   },
   infoCardVal: {
-    fontSize: 14,
-    color: '#1e293b',
-    fontWeight: '700',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   vaxSection: {
     marginBottom: 24,
@@ -1229,21 +1476,18 @@ const styles = StyleSheet.create({
   vaxThumb: {
     width: 120,
     height: 80,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.md,
     marginRight: 10,
     resizeMode: 'cover',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: theme.COLORS.borderDark,
   },
   descriptionHeader: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
     marginBottom: 8,
   },
   descriptionText: {
-    fontSize: 14,
-    color: '#475569',
+    ...theme.TEXT.bodySecondary,
     lineHeight: 22,
   },
 });

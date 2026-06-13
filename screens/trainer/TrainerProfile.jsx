@@ -13,6 +13,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/useAuthStore';
 import axiosInstance from '../../lib/axios';
+import theme from '../../constants/theme';
 
 export default function TrainerProfile() {
   const { authUser } = useAuthStore();
@@ -113,7 +114,7 @@ export default function TrainerProfile() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#16a34a" />
+        <ActivityIndicator size="large" color={theme.COLORS.primary} />
         <Text style={styles.loadingText}>Loading Profile...</Text>
       </View>
     );
@@ -130,7 +131,7 @@ export default function TrainerProfile() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={() => fetchProfile(true)}
-          tintColor="#16a34a"
+          tintColor={theme.COLORS.primary}
         />
       }>
       {/* Avatar Header */}
@@ -162,7 +163,7 @@ export default function TrainerProfile() {
           <Text style={styles.sectionTitle}>Personal Information</Text>
           {!editing && (
             <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(true)}>
-              <Feather name="edit-2" size={14} color="#16a34a" />
+              <Feather name="edit-2" size={14} color={theme.COLORS.primary} />
               <Text style={styles.editBtnText}>Edit</Text>
             </TouchableOpacity>
           )}
@@ -196,7 +197,7 @@ export default function TrainerProfile() {
               <View key={field} style={styles.editField}>
                 <Text style={styles.editLabel}>{label}</Text>
                 <View style={styles.editInputRow}>
-                  <Feather name={icon} size={15} color="#16a34a" style={styles.editIcon} />
+                  <Feather name={icon} size={15} color={theme.COLORS.primary} style={styles.editIcon} />
                   <TextInput
                     style={styles.editInput}
                     placeholder={placeholder}
@@ -258,7 +259,7 @@ export default function TrainerProfile() {
               value ? (
                 <View key={label} style={styles.infoRow}>
                   <View style={styles.infoIconWrap}>
-                    <Feather name={icon} size={15} color="#16a34a" />
+                    <Feather name={icon} size={15} color={theme.COLORS.primary} />
                   </View>
                   <View style={styles.infoBody}>
                     <Text style={styles.infoLabel}>{label}</Text>
@@ -273,7 +274,7 @@ export default function TrainerProfile() {
 
       {/* Account Note */}
       <View style={styles.noteBox}>
-        <Feather name="info" size={16} color="#15803d" style={{ marginRight: 10 }} />
+        <Feather name="info" size={16} color={theme.COLORS.success} style={{ marginRight: 10 }} />
         <Text style={styles.noteText}>
           Your account is verified by the Petzu admin team. Contact support if you need to update
           your Aadhar or email address.
@@ -284,63 +285,51 @@ export default function TrainerProfile() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContent: { paddingBottom: 40 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loadingText: { fontSize: 14, color: '#64748b', fontWeight: '500' },
+  container: { flex: 1, backgroundColor: theme.COLORS.canvas },
+  scrollContent: { paddingBottom: 40, paddingHorizontal: theme.SIZES.md, paddingTop: theme.SIZES.md },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, backgroundColor: theme.COLORS.canvas },
+  loadingText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.semiBold },
 
   avatarCard: {
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
     padding: 28,
-    marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: '#f0fdf4',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    marginBottom: theme.SIZES.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
+    ...theme.SHADOWS.md,
   },
   avatarCircle: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#16a34a',
+    backgroundColor: theme.COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#16a34a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    ...theme.SHADOWS.md,
   },
-  avatarText: { color: '#fff', fontWeight: '800', fontSize: 28 },
-  profileName: { fontSize: 20, fontWeight: '800', color: '#1e1b4b', marginBottom: 4 },
-  profileUsername: { fontSize: 13, color: '#64748b', marginBottom: 12 },
+  avatarText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.black, fontSize: 28 },
+  profileName: { ...theme.TEXT.h2, marginBottom: 4 },
+  profileUsername: { ...theme.TEXT.bodySecondary, marginBottom: 12 },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xxl,
   },
-  statusText: { fontSize: 13, fontWeight: '700' },
+  statusText: { ...theme.TEXT.label },
 
   sectionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
     padding: 20,
-    marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    marginBottom: theme.SIZES.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
+    ...theme.SHADOWS.sm,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -348,85 +337,83 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 18,
   },
-  sectionTitle: { fontSize: 15, fontWeight: '800', color: '#334155' },
+  sectionTitle: { ...theme.TEXT.h3 },
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: theme.COLORS.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
   },
-  editBtnText: { color: '#16a34a', fontWeight: '700', fontSize: 13 },
+  editBtnText: { color: theme.COLORS.primary, fontWeight: theme.FONTS.bold, fontSize: 13 },
 
   infoList: { gap: 14 },
   infoRow: { flexDirection: 'row', alignItems: 'center' },
   infoIconWrap: {
     width: 34,
     height: 34,
-    borderRadius: 10,
-    backgroundColor: '#f0fdf4',
+    borderRadius: theme.RADIUS.sm,
+    backgroundColor: theme.COLORS.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   infoBody: { flex: 1 },
-  infoLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  infoValue: { fontSize: 14, fontWeight: '600', color: '#334155', marginTop: 1 },
+  infoLabel: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, textTransform: 'uppercase' },
+  infoValue: { ...theme.TEXT.body, fontWeight: theme.FONTS.semiBold, marginTop: 1 },
 
   // Edit form
   editForm: { gap: 14 },
   editField: {},
   editLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#334155',
+    ...theme.TEXT.label,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   editInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 12,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
     paddingVertical: 10,
   },
   editIcon: { marginRight: 10 },
-  editInput: { flex: 1, fontSize: 14, color: '#334155', fontWeight: '500' },
+  editInput: { flex: 1, ...theme.TEXT.body, fontWeight: theme.FONTS.medium },
   editActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
   cancelBtn: {
     flex: 1,
     paddingVertical: 13,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
     alignItems: 'center',
   },
-  cancelBtnText: { color: '#64748b', fontWeight: '700', fontSize: 14 },
+  cancelBtnText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.bold },
   saveBtn: {
     flex: 2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#16a34a',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
     paddingVertical: 13,
   },
   saveBtnDisabled: { opacity: 0.7 },
-  saveBtnText: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  saveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: theme.TEXT.body.fontSize },
 
   noteBox: {
     flexDirection: 'row',
-    backgroundColor: '#f0fdf4',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: theme.COLORS.success + '15',
+    borderRadius: theme.RADIUS.lg,
+    padding: theme.SIZES.md,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: theme.COLORS.success + '30',
     alignItems: 'flex-start',
   },
-  noteText: { flex: 1, fontSize: 12, color: '#15803d', lineHeight: 18, fontWeight: '500' },
+  noteText: { flex: 1, ...theme.TEXT.bodySecondary, color: theme.COLORS.success, lineHeight: 18, fontWeight: theme.FONTS.medium },
 });

@@ -12,11 +12,11 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
+import theme from '../../constants/theme';
 
 const CATEGORIES = ['Dog', 'Cat', 'Bird', 'Fish', 'Other'];
 const GENDERS = ['Male', 'Female', 'Mixed', 'Unsexed'];
@@ -36,16 +36,30 @@ export default function AvailablePets() {
   const [currentStep, setCurrentStep] = useState(1);
   const [editingPet, setEditingPet] = useState(null);
 
-  // ── Step 1: General
+  // ── Step 1: Category
   const [formCategory, setFormCategory] = useState('Dog');
+
+  // ── Step 2: Basic Info
   const [formBreed, setFormBreed] = useState('');
   const [formGender, setFormGender] = useState('Male');
-  const [formPrice, setFormPrice] = useState('');
-  const [priceNegotiable, setPriceNegotiable] = useState(false);
-  const [dateOfBirth, setDateOfBirth] = useState('');
-
-  // ── Step 2: Lineage & Health
   const [petQuality, setPetQuality] = useState('Pet Quality');
+  // Fish Specific
+  const [fishCategory, setFishCategory] = useState('');
+  const [fishQuantity, setFishQuantity] = useState('Single');
+  const [fishQuantityCount, setFishQuantityCount] = useState('');
+  const [fishGender, setFishGender] = useState('Unsexed');
+  const [fishSizeCm, setFishSizeCm] = useState('');
+  const [fishColorVariant, setFishColorVariant] = useState('');
+  const [fishFeedType, setFishFeedType] = useState('Flakes');
+  // Bird Specific
+  const [birdQuantity, setBirdQuantity] = useState('Single');
+  const [birdGender, setBirdGender] = useState('Unsexed');
+  const [birdTalkingAbility, setBirdTalkingAbility] = useState(false);
+  const [birdFeedType, setBirdFeedType] = useState('Seeds');
+  const [birdColorVariant, setBirdColorVariant] = useState('');
+
+  // ── Step 3: Additional Info
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [breedLineage, setBreedLineage] = useState('None');
   const [vaccinationDetails, setVaccinationDetails] = useState('');
   const [kciStatusPet, setKciStatusPet] = useState('Non-KCI Pet');
@@ -53,17 +67,20 @@ export default function AvailablePets() {
   const [kciName, setKciName] = useState('');
   const [microchipNumber, setMicrochipNumber] = useState('');
 
-  // ── Step 3: Vendor details (auto-filled)
+  // ── Step 4: Pricing & Media
+  const [formPrice, setFormPrice] = useState('');
+  const [priceNegotiable, setPriceNegotiable] = useState(false);
+  const [formImages, setFormImages] = useState([]);
+  const [vaccinationProofImages, setVaccinationProofImages] = useState([]);
+  const [kciCertImages, setKciCertImages] = useState([]);
+  const [video, setVideo] = useState(null);
+
+  // ── Step 5: Vendor details (auto-filled)
   const [breederName, setBreederName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [shopAddress, setShopAddress] = useState('');
   const [location, setLocation] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
-
-  // ── Step 4: Media
-  const [formImages, setFormImages] = useState([]);
-  const [vaccinationProofImages, setVaccinationProofImages] = useState([]);
-  const [kciCertImages, setKciCertImages] = useState([]);
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
@@ -98,6 +115,21 @@ export default function AvailablePets() {
     setPriceNegotiable(false);
     setDateOfBirth('');
     setPetQuality('Pet Quality');
+    
+    setFishCategory('');
+    setFishQuantity('Single');
+    setFishQuantityCount('');
+    setFishGender('Unsexed');
+    setFishSizeCm('');
+    setFishColorVariant('');
+    setFishFeedType('Flakes');
+
+    setBirdQuantity('Single');
+    setBirdGender('Unsexed');
+    setBirdTalkingAbility(false);
+    setBirdFeedType('Seeds');
+    setBirdColorVariant('');
+
     setBreedLineage('None');
     setVaccinationDetails('');
     setKciStatusPet('Non-KCI Pet');
@@ -113,6 +145,7 @@ export default function AvailablePets() {
     setFormImages([]);
     setVaccinationProofImages([]);
     setKciCertImages([]);
+    setVideo(null);
     setCurrentStep(1);
   };
 
@@ -131,6 +164,21 @@ export default function AvailablePets() {
     setPriceNegotiable(!!pet.priceNegotiable);
     setDateOfBirth(pet.dateOfBirth ? new Date(pet.dateOfBirth).toISOString().split('T')[0] : '');
     setPetQuality(pet.petQuality || 'Pet Quality');
+    
+    setFishCategory(pet.fish_category || '');
+    setFishQuantity(pet.fish_quantity || 'Single');
+    setFishQuantityCount(pet.fish_quantityCount?.toString() || '');
+    setFishGender(pet.fish_gender || 'Unsexed');
+    setFishSizeCm(pet.fish_sizeCm?.toString() || '');
+    setFishColorVariant(pet.fish_colorVariant || '');
+    setFishFeedType(pet.fish_feedType || 'Flakes');
+
+    setBirdQuantity(pet.bird_quantity || 'Single');
+    setBirdGender(pet.bird_gender || 'Unsexed');
+    setBirdTalkingAbility(!!pet.bird_talkingAbility);
+    setBirdFeedType(pet.bird_feedType || 'Seeds');
+    setBirdColorVariant(pet.bird_colorVariant || '');
+
     setBreedLineage(pet.breedLineage || 'None');
     setVaccinationDetails(pet.vaccinationDetails || '');
     setKciStatusPet(pet.kciStatusPet || 'Non-KCI Pet');
@@ -145,6 +193,7 @@ export default function AvailablePets() {
     setFormImages(pet.images || []);
     setVaccinationProofImages(pet.vaccinationProof || []);
     setKciCertImages(pet.kciCertificate || []);
+    setVideo(pet.video || null);
     setCurrentStep(1);
     setModalVisible(true);
   };
@@ -214,7 +263,7 @@ export default function AvailablePets() {
     ]);
   };
 
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 4));
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 5));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handleSave = async () => {
@@ -235,16 +284,32 @@ export default function AvailablePets() {
       setSubmitting(true);
       const data = new FormData();
 
-      // Step 1 fields
+      // Category
       data.append('category', formCategory);
+      
+      // Basic Info
       data.append('breed', formBreed);
       data.append('gender', formGender);
-      data.append('price', formPrice);
-      data.append('priceNegotiable', String(priceNegotiable));
-      data.append('dateOfBirth', dateOfBirth);
-
-      // Step 2 fields
       data.append('petQuality', petQuality);
+
+      if (formCategory === 'Fish') {
+        data.append('fish_category', fishCategory);
+        data.append('fish_quantity', fishQuantity);
+        if (fishQuantity === 'Group') data.append('fish_quantityCount', fishQuantityCount);
+        data.append('fish_gender', fishGender);
+        if (fishSizeCm) data.append('fish_sizeCm', fishSizeCm);
+        data.append('fish_colorVariant', fishColorVariant);
+        data.append('fish_feedType', fishFeedType);
+      } else if (formCategory === 'Bird') {
+        data.append('bird_quantity', birdQuantity);
+        data.append('bird_gender', birdGender);
+        data.append('bird_talkingAbility', String(birdTalkingAbility));
+        data.append('bird_feedType', birdFeedType);
+        data.append('bird_colorVariant', birdColorVariant);
+      }
+
+      // Additional Info
+      data.append('dateOfBirth', dateOfBirth);
       if (formCategory !== 'Fish' && formCategory !== 'Bird') {
         data.append('breedLineage', breedLineage);
       }
@@ -256,7 +321,11 @@ export default function AvailablePets() {
       }
       if (microchipNumber) data.append('microchipNumber', microchipNumber);
 
-      // Step 3 fields
+      // Pricing & Media
+      data.append('price', formPrice);
+      data.append('priceNegotiable', String(priceNegotiable));
+
+      // Vendor details
       data.append('breederName', breederName);
       data.append('phoneNumber', phoneNumber);
       data.append('shopAddress', shopAddress);
@@ -301,6 +370,19 @@ export default function AvailablePets() {
           type: `image/${ext === 'png' ? 'png' : 'jpeg'}`,
         });
       });
+
+      if (video) {
+        if (!video.startsWith('http')) {
+          const ext = video.split('.').pop();
+          data.append('video', {
+            uri: video,
+            name: `pet_video.${ext || 'mp4'}`,
+            type: `video/${ext === 'mov' ? 'quicktime' : 'mp4'}`,
+          });
+        } else {
+          data.append('existingVideo', video);
+        }
+      }
 
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
@@ -352,7 +434,7 @@ export default function AvailablePets() {
         {label} (Max {limit})
       </Text>
       <TouchableOpacity style={styles.photoPicker} onPress={onAdd}>
-        <Feather name="camera" size={22} color="#7c3aed" />
+        <Feather name="camera" size={22} color={theme.COLORS.primary} />
         <Text style={styles.photoPickerText}>Select From Gallery</Text>
       </TouchableOpacity>
       {images.length > 0 && (
@@ -361,7 +443,7 @@ export default function AvailablePets() {
             <View key={index} style={styles.imageItem}>
               <Image source={{ uri }} style={styles.imageThumbnail} />
               <TouchableOpacity style={styles.removeImageBtn} onPress={() => onRemove(index)}>
-                <Feather name="x" size={14} color="#ffffff" />
+                <Feather name="x" size={14} color={theme.COLORS.surface} />
               </TouchableOpacity>
             </View>
           ))}
@@ -379,7 +461,7 @@ export default function AvailablePets() {
             <Image source={{ uri: mainPhoto }} style={styles.cardImage} />
           ) : (
             <View style={styles.placeholderCardImage}>
-              <Feather name="image" size={32} color="#94a3b8" />
+              <Feather name="image" size={32} color={theme.COLORS.textSecondary} />
             </View>
           )}
           <View style={styles.cardPriceBadge}>
@@ -398,11 +480,11 @@ export default function AvailablePets() {
           </View>
           <View style={styles.cardMetaRow}>
             <View style={styles.metaItem}>
-              <Feather name="info" size={12} color="#64748b" />
+              <Feather name="info" size={12} color={theme.COLORS.textSecondary} />
               <Text style={styles.metaText}>{item.gender}</Text>
             </View>
             <View style={styles.metaItem}>
-              <Feather name="clock" size={12} color="#64748b" />
+              <Feather name="clock" size={12} color={theme.COLORS.textSecondary} />
               <Text style={styles.metaText}>{item.age || '—'}</Text>
             </View>
           </View>
@@ -414,22 +496,22 @@ export default function AvailablePets() {
                 setViewModalVisible(true);
               }}
               style={[styles.cardBtn, styles.viewBtn]}>
-              <Feather name="eye" size={14} color="#7c3aed" />
+              <Feather name="eye" size={14} color={theme.COLORS.primary} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleOpenEdit(item)}
               style={[styles.cardBtn, styles.editBtn]}>
-              <Feather name="edit-2" size={14} color="#2563eb" />
+              <Feather name="edit-2" size={14} color={theme.COLORS.primary} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleStatusChange(item._id, 'Sold Out')}
               style={[styles.cardBtn, styles.soldOutBtn]}>
-              <Feather name="check-circle" size={14} color="#10b981" />
+              <Feather name="check-circle" size={14} color={theme.COLORS.success} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleDelete(item._id)}
               style={[styles.cardBtn, styles.trashBtn]}>
-              <Feather name="trash-2" size={14} color="#ef4444" />
+              <Feather name="trash-2" size={14} color={theme.COLORS.error} />
             </TouchableOpacity>
           </View>
         </View>
@@ -442,30 +524,26 @@ export default function AvailablePets() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.searchBarContainer}>
-          <Feather name="search" size={16} color="#94a3b8" style={styles.searchIcon} />
+          <Feather name="search" size={16} color={theme.COLORS.textSecondary} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search by breed or category..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={theme.COLORS.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
         <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-          <LinearGradient
-            colors={['#7c3aed', '#2563eb']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.addBtnGradient}>
-            <Feather name="plus" size={18} color="#ffffff" style={styles.addBtnIcon} />
+          <View style={styles.addBtnGradient}>
+            <Feather name="plus" size={18} color={theme.COLORS.surface} style={styles.addBtnIcon} />
             <Text style={styles.addBtnText}>Add Pet</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#7c3aed" />
+          <ActivityIndicator size="large" color={theme.COLORS.primary} />
           <Text style={styles.loadingText}>Fetching available pets...</Text>
         </View>
       ) : filteredPets.length > 0 ? (
@@ -479,7 +557,7 @@ export default function AvailablePets() {
       ) : (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconBg}>
-            <Feather name="heart" size={32} color="#7c3aed" />
+            <Feather name="heart" size={32} color={theme.COLORS.primary} />
           </View>
           <Text style={styles.emptyTitle}>No Available Pets</Text>
           <Text style={styles.emptySubtitle}>
@@ -488,7 +566,7 @@ export default function AvailablePets() {
         </View>
       )}
 
-      {/* Form Modal — 4 Steps */}
+      {/* Form Modal — 5 Steps */}
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -501,13 +579,13 @@ export default function AvailablePets() {
                 {editingPet ? 'Edit Pet Listing' : 'Add New Pet Listing'}
               </Text>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setModalVisible(false)}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
 
             {/* Step Indicator */}
             <View style={styles.stepsIndicator}>
-              {[1, 2, 3, 4].map((step) => (
+              {[1, 2, 3, 4, 5].map((step) => (
                 <View key={step} style={styles.stepIndicatorRow}>
                   <View
                     style={[
@@ -519,7 +597,7 @@ export default function AvailablePets() {
                           : null,
                     ]}>
                     {currentStep > step ? (
-                      <Feather name="check" size={10} color="#ffffff" />
+                      <Feather name="check" size={10} color={theme.COLORS.surface} />
                     ) : (
                       <Text
                         style={[
@@ -530,7 +608,7 @@ export default function AvailablePets() {
                       </Text>
                     )}
                   </View>
-                  {step < 4 && (
+                  {step < 5 && (
                     <View
                       style={[
                         styles.stepLine,
@@ -543,17 +621,23 @@ export default function AvailablePets() {
             </View>
 
             <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-              {/* ── STEP 1: General Details ── */}
+              {/* ── STEP 1: Category Selection ── */}
               {currentStep === 1 && (
                 <View style={styles.stepContainer}>
-                  <Text style={styles.stepTitle}>General Details</Text>
-
+                  <Text style={styles.stepTitle}>Category Selection</Text>
                   <PillSelector
                     label="Pet Category *"
                     options={CATEGORIES}
                     selected={formCategory}
                     onSelect={setFormCategory}
                   />
+                </View>
+              )}
+
+              {/* ── STEP 2: Basic Info ── */}
+              {currentStep === 2 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Basic Information</Text>
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Breed *</Text>
@@ -562,7 +646,7 @@ export default function AvailablePets() {
                       value={formBreed}
                       onChangeText={setFormBreed}
                       placeholder="e.g. Labrador Retriever"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
 
@@ -573,6 +657,68 @@ export default function AvailablePets() {
                     onSelect={setFormGender}
                   />
 
+                  <PillSelector
+                    label="Pet Quality"
+                    options={QUALITIES}
+                    selected={petQuality}
+                    onSelect={setPetQuality}
+                  />
+
+                  {/* Fish Specific */}
+                  {formCategory === 'Fish' && (
+                    <View style={styles.conditionalBlock}>
+                      <Text style={styles.sectionSubTitle}>Fish Specific Details</Text>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Fish Category</Text>
+                        <TextInput style={styles.textInput} value={fishCategory} onChangeText={setFishCategory} placeholder="Freshwater, Saltwater..." />
+                      </View>
+                      <PillSelector label="Quantity Type" options={['Single', 'Pair', 'Trio', 'Group']} selected={fishQuantity} onSelect={setFishQuantity} />
+                      {fishQuantity === 'Group' && (
+                        <View style={styles.inputGroup}>
+                          <Text style={styles.inputLabel}>Quantity Count</Text>
+                          <TextInput style={styles.textInput} value={fishQuantityCount} onChangeText={setFishQuantityCount} keyboardType="numeric" />
+                        </View>
+                      )}
+                      <PillSelector label="Fish Gender" options={['Male', 'Female', 'Unsexed', 'Mixed']} selected={fishGender} onSelect={setFishGender} />
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Size (cm)</Text>
+                        <TextInput style={styles.textInput} value={fishSizeCm} onChangeText={setFishSizeCm} keyboardType="numeric" />
+                      </View>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Color Variant</Text>
+                        <TextInput style={styles.textInput} value={fishColorVariant} onChangeText={setFishColorVariant} />
+                      </View>
+                      <PillSelector label="Feed Type" options={['Flakes', 'Live Food', 'Pellets', 'Frozen']} selected={fishFeedType} onSelect={setFishFeedType} />
+                    </View>
+                  )}
+
+                  {/* Bird Specific */}
+                  {formCategory === 'Bird' && (
+                    <View style={styles.conditionalBlock}>
+                      <Text style={styles.sectionSubTitle}>Bird Specific Details</Text>
+                      <PillSelector label="Quantity" options={['Single', 'Pair']} selected={birdQuantity} onSelect={setBirdQuantity} />
+                      <PillSelector label="Gender" options={['Male', 'Female', 'Mixed', 'Unsexed']} selected={birdGender} onSelect={setBirdGender} />
+                      <PillSelector label="Feed Type" options={['Seeds', 'Pellets', 'Fruits', 'Hand-feed']} selected={birdFeedType} onSelect={setBirdFeedType} />
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Color Variant</Text>
+                        <TextInput style={styles.textInput} value={birdColorVariant} onChangeText={setBirdColorVariant} />
+                      </View>
+                      <TouchableOpacity style={styles.checkboxContainer} onPress={() => setBirdTalkingAbility(!birdTalkingAbility)}>
+                        <View style={[styles.checkbox, birdTalkingAbility ? styles.checkboxChecked : null]}>
+                          {birdTalkingAbility && <Feather name="check" size={12} color={theme.COLORS.surface} />}
+                        </View>
+                        <Text style={styles.checkboxLabel}>Has Talking Ability</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              {/* ── STEP 3: Additional Info ── */}
+              {currentStep === 3 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Health & Additional Info</Text>
+
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Date of Birth * (YYYY-MM-DD)</Text>
                     <TextInput
@@ -580,45 +726,9 @@ export default function AvailablePets() {
                       value={dateOfBirth}
                       onChangeText={setDateOfBirth}
                       placeholder="e.g. 2025-03-15"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Listing Price (INR) *</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={formPrice}
-                      onChangeText={setFormPrice}
-                      placeholder="e.g. 15000"
-                      placeholderTextColor="#94a3b8"
-                      keyboardType="numeric"
-                    />
-                  </View>
-
-                  <TouchableOpacity
-                    style={styles.checkboxContainer}
-                    onPress={() => setPriceNegotiable(!priceNegotiable)}>
-                    <View
-                      style={[styles.checkbox, priceNegotiable ? styles.checkboxChecked : null]}>
-                      {priceNegotiable && <Feather name="check" size={12} color="#ffffff" />}
-                    </View>
-                    <Text style={styles.checkboxLabel}>Price is Negotiable</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {/* ── STEP 2: Lineage & Health ── */}
-              {currentStep === 2 && (
-                <View style={styles.stepContainer}>
-                  <Text style={styles.stepTitle}>Lineage &amp; Health</Text>
-
-                  <PillSelector
-                    label="Pet Quality"
-                    options={QUALITIES}
-                    selected={petQuality}
-                    onSelect={setPetQuality}
-                  />
 
                   {formCategory !== 'Fish' && formCategory !== 'Bird' && (
                     <PillSelector
@@ -636,7 +746,7 @@ export default function AvailablePets() {
                       value={vaccinationDetails}
                       onChangeText={setVaccinationDetails}
                       placeholder="e.g. First dose done, dewormed"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
 
@@ -656,7 +766,7 @@ export default function AvailablePets() {
                           value={kciNumber}
                           onChangeText={setKciNumber}
                           placeholder="Enter KCI Reg No"
-                          placeholderTextColor="#94a3b8"
+                          placeholderTextColor={theme.COLORS.textSecondary}
                         />
                       </View>
                       <View style={styles.inputGroup}>
@@ -666,7 +776,7 @@ export default function AvailablePets() {
                           value={kciName}
                           onChangeText={setKciName}
                           placeholder="Enter Registered Name"
-                          placeholderTextColor="#94a3b8"
+                          placeholderTextColor={theme.COLORS.textSecondary}
                         />
                       </View>
                     </View>
@@ -679,84 +789,39 @@ export default function AvailablePets() {
                       value={microchipNumber}
                       onChangeText={setMicrochipNumber}
                       placeholder="Enter 15-digit Microchip No"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                       keyboardType="numeric"
                     />
                   </View>
                 </View>
               )}
 
-              {/* ── STEP 3: Seller / Vendor Details ── */}
-              {currentStep === 3 && (
-                <View style={styles.stepContainer}>
-                  <Text style={styles.stepTitle}>Seller Details</Text>
-                  <Text style={styles.stepHint}>
-                    Auto-filled from your profile. Edit if needed.
-                  </Text>
-
-                  {[
-                    {
-                      label: 'Breeder / Owner Name *',
-                      value: breederName,
-                      setter: setBreederName,
-                      placeholder: 'Your full name',
-                      keyboard: 'default',
-                    },
-                    {
-                      label: 'Phone Number *',
-                      value: phoneNumber,
-                      setter: setPhoneNumber,
-                      placeholder: '10-digit mobile number',
-                      keyboard: 'phone-pad',
-                    },
-                    {
-                      label: 'Location / City *',
-                      value: location,
-                      setter: setLocation,
-                      placeholder: 'City, State',
-                      keyboard: 'default',
-                    },
-                    {
-                      label: 'Shop Address',
-                      value: shopAddress,
-                      setter: setShopAddress,
-                      placeholder: 'Complete shop address',
-                      keyboard: 'default',
-                    },
-                  ].map(({ label, value, setter, placeholder, keyboard }) => (
-                    <View key={label} style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>{label}</Text>
-                      <TextInput
-                        style={styles.textInput}
-                        value={value}
-                        onChangeText={setter}
-                        placeholder={placeholder}
-                        placeholderTextColor="#94a3b8"
-                        keyboardType={keyboard}
-                        autoCapitalize="none"
-                      />
-                    </View>
-                  ))}
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Additional Details / Description</Text>
-                    <TextInput
-                      style={[styles.textInput, styles.textArea]}
-                      value={additionalDetails}
-                      onChangeText={setAdditionalDetails}
-                      placeholder="Write notes about temperament, health condition..."
-                      placeholderTextColor="#94a3b8"
-                      multiline
-                      numberOfLines={4}
-                    />
-                  </View>
-                </View>
-              )}
-
-              {/* ── STEP 4: Media ── */}
+              {/* ── STEP 4: Pricing & Media ── */}
               {currentStep === 4 && (
                 <View style={styles.stepContainer}>
-                  <Text style={styles.stepTitle}>Photos &amp; Documents</Text>
+                  <Text style={styles.stepTitle}>Pricing & Media</Text>
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Listing Price (INR) *</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={formPrice}
+                      onChangeText={setFormPrice}
+                      placeholder="e.g. 15000"
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.checkboxContainer}
+                    onPress={() => setPriceNegotiable(!priceNegotiable)}>
+                    <View
+                      style={[styles.checkbox, priceNegotiable ? styles.checkboxChecked : null]}>
+                      {priceNegotiable && <Feather name="check" size={12} color={theme.COLORS.surface} />}
+                    </View>
+                    <Text style={styles.checkboxLabel}>Price is Negotiable</Text>
+                  </TouchableOpacity>
 
                   <ImageGrid
                     label="Pet Photos *"
@@ -768,9 +833,7 @@ export default function AvailablePets() {
                   <ImageGrid
                     label="Vaccination Proof"
                     images={vaccinationProofImages}
-                    onAdd={() =>
-                      handlePickImages(setVaccinationProofImages, vaccinationProofImages, 3)
-                    }
+                    onAdd={() => handlePickImages(setVaccinationProofImages, vaccinationProofImages, 3)}
                     onRemove={(idx) => handleRemoveImage(setVaccinationProofImages, idx)}
                     limit={3}
                   />
@@ -786,7 +849,50 @@ export default function AvailablePets() {
                   )}
                 </View>
               )}
-            </ScrollView>
+
+              {/* ── STEP 5: Seller / Vendor Details ── */}
+              {currentStep === 5 && (
+                <View style={styles.stepContainer}>
+                  <Text style={styles.stepTitle}>Seller Details</Text>
+                  <Text style={styles.stepHint}>
+                    Auto-filled from your profile. Edit if needed.
+                  </Text>
+
+                  {[
+                    { label: 'Breeder / Owner Name *', value: breederName, setter: setBreederName, placeholder: 'Your full name', keyboard: 'default' },
+                    { label: 'Phone Number *', value: phoneNumber, setter: setPhoneNumber, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
+                    { label: 'Location / City *', value: location, setter: setLocation, placeholder: 'City, State', keyboard: 'default' },
+                    { label: 'Shop Address', value: shopAddress, setter: setShopAddress, placeholder: 'Complete shop address', keyboard: 'default' },
+                  ].map(({ label, value, setter, placeholder, keyboard }) => (
+                    <View key={label} style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>{label}</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={value}
+                        onChangeText={setter}
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                        keyboardType={keyboard}
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  ))}
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Additional Details / Description</Text>
+                    <TextInput
+                      style={[styles.textInput, styles.textArea]}
+                      value={additionalDetails}
+                      onChangeText={setAdditionalDetails}
+                      placeholder="Write notes about temperament, health condition..."
+                      placeholderTextColor={theme.COLORS.textSecondary}
+                      multiline
+                      numberOfLines={4}
+                    />
+                  </View>
+                </View>
+              )}
+</ScrollView>
 
             {/* Footer */}
             <View style={styles.modalFooter}>
@@ -797,7 +903,7 @@ export default function AvailablePets() {
               ) : (
                 <View />
               )}
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <TouchableOpacity style={styles.footerNextBtn} onPress={nextStep}>
                   <Text style={styles.footerNextBtnText}>Next</Text>
                 </TouchableOpacity>
@@ -807,7 +913,7 @@ export default function AvailablePets() {
                   onPress={handleSave}
                   disabled={submitting}>
                   {submitting ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={theme.COLORS.surface} />
                   ) : (
                     <Text style={styles.footerSaveBtnText}>Publish Listing</Text>
                   )}
@@ -832,7 +938,7 @@ export default function AvailablePets() {
                 <TouchableOpacity
                   style={styles.closeBtn}
                   onPress={() => setViewModalVisible(false)}>
-                  <Feather name="x" size={20} color="#64748b" />
+                  <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                 </TouchableOpacity>
               </View>
               <ScrollView showsVerticalScrollIndicator={false}>
@@ -847,7 +953,7 @@ export default function AvailablePets() {
                   </ScrollView>
                 ) : (
                   <View style={styles.viewMainPlaceholder}>
-                    <Feather name="image" size={48} color="#cbd5e1" />
+                    <Feather name="image" size={48} color={theme.COLORS.borderDark} />
                     <Text style={styles.placeholderText}>No Photos Available</Text>
                   </View>
                 )}
@@ -893,64 +999,61 @@ export default function AvailablePets() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },
+  container: { flex: 1, backgroundColor: theme.COLORS.canvas },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.SIZES.md, gap: 10, paddingHorizontal: theme.SIZES.md, paddingTop: theme.SIZES.md },
   searchBarContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    paddingHorizontal: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
     paddingVertical: 10,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#334155', fontWeight: '500' },
-  addBtn: { borderRadius: 14, overflow: 'hidden' },
+  searchInput: { flex: 1, fontSize: theme.TEXT.body.fontSize, color: theme.COLORS.text, fontWeight: theme.FONTS.medium },
+  addBtn: { borderRadius: theme.RADIUS.lg, overflow: 'hidden' },
   addBtnGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
     paddingVertical: 11,
+    backgroundColor: theme.COLORS.primary,
   },
   addBtnIcon: { marginRight: 6 },
-  addBtnText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
+  addBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: theme.TEXT.body.fontSize },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 10 },
-  loadingText: { color: '#64748b', fontSize: 14 },
-  listContent: { paddingBottom: 20, gap: 12 },
+  loadingText: { color: theme.COLORS.textSecondary, fontSize: theme.TEXT.body.fontSize },
+  listContent: { paddingBottom: 20, gap: 12, paddingHorizontal: theme.SIZES.md },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
   emptyIconBg: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#ede9fe',
+    backgroundColor: theme.COLORS.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#334155' },
-  emptySubtitle: { fontSize: 13, color: '#94a3b8', textAlign: 'center' },
+  emptyTitle: { ...theme.TEXT.h2 },
+  emptySubtitle: { ...theme.TEXT.bodySecondary, textAlign: 'center' },
 
   card: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
     overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
+    ...theme.SHADOWS.sm,
   },
   imageWrapper: { position: 'relative', width: 100 },
   cardImage: { width: 100, height: 110 },
   placeholderCardImage: {
     width: 100,
     height: 110,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -958,12 +1061,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 6,
     left: 6,
-    backgroundColor: '#7c3aed',
-    borderRadius: 8,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.sm,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  cardPriceText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  cardPriceText: { color: theme.COLORS.surface, fontSize: 11, fontWeight: theme.FONTS.bold },
   cardDetails: { flex: 1, padding: 10 },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -971,53 +1074,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  cardBreed: { fontSize: 14, fontWeight: '700', color: '#1e1b4b', flex: 1 },
+  cardBreed: { fontSize: 14, fontWeight: theme.FONTS.bold, color: theme.COLORS.text, flex: 1 },
   categoryBadge: {
-    backgroundColor: '#ede9fe',
-    borderRadius: 8,
+    backgroundColor: theme.COLORS.primary + '15',
+    borderRadius: theme.RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  categoryBadgeText: { color: '#7c3aed', fontSize: 11, fontWeight: '700' },
+  categoryBadgeText: { color: theme.COLORS.primary, fontSize: 11, fontWeight: theme.FONTS.bold },
   cardMetaRow: { flexDirection: 'row', gap: 10, marginBottom: 8 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 12, color: '#64748b' },
-  cardDivider: { height: 1, backgroundColor: '#f1f5f9', marginBottom: 8 },
+  metaText: { fontSize: 12, color: theme.COLORS.textSecondary },
+  cardDivider: { height: 1, backgroundColor: theme.COLORS.borderLight, marginBottom: 8 },
   cardActions: { flexDirection: 'row', gap: 8 },
   cardBtn: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: theme.RADIUS.sm,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  viewBtn: { backgroundColor: '#ede9fe' },
-  editBtn: { backgroundColor: '#dbeafe' },
-  soldOutBtn: { backgroundColor: '#d1fae5' },
-  trashBtn: { backgroundColor: '#fee2e2' },
+  viewBtn: { backgroundColor: theme.COLORS.primary + '15' },
+  editBtn: { backgroundColor: theme.COLORS.secondary + '20' },
+  soldOutBtn: { backgroundColor: theme.COLORS.success + '20' },
+  trashBtn: { backgroundColor: theme.COLORS.error + '20' },
 
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
   modalContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     maxHeight: '92%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: theme.SIZES.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: theme.COLORS.borderLight,
   },
-  modalTitle: { fontSize: 17, fontWeight: '800', color: '#1e1b4b' },
+  modalTitle: { ...theme.TEXT.h3 },
   closeBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.canvas,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1032,79 +1135,76 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  stepDotActive: { backgroundColor: '#7c3aed' },
-  stepDotCompleted: { backgroundColor: '#10b981' },
-  stepDotText: { fontSize: 12, fontWeight: '700', color: '#94a3b8' },
-  stepDotTextActive: { color: '#fff' },
-  stepLine: { width: 28, height: 2, backgroundColor: '#e2e8f0' },
-  stepLineCompleted: { backgroundColor: '#10b981' },
-  modalScroll: { paddingHorizontal: 20 },
+  stepDotActive: { backgroundColor: theme.COLORS.primary },
+  stepDotCompleted: { backgroundColor: theme.COLORS.success },
+  stepDotText: { fontSize: 12, fontWeight: theme.FONTS.bold, color: theme.COLORS.textSecondary },
+  stepDotTextActive: { color: theme.COLORS.surface },
+  stepLine: { width: 28, height: 2, backgroundColor: theme.COLORS.border },
+  stepLineCompleted: { backgroundColor: theme.COLORS.success },
+  modalScroll: { paddingHorizontal: theme.SIZES.lg },
   stepContainer: { paddingVertical: 10 },
-  stepTitle: { fontSize: 15, fontWeight: '800', color: '#334155', marginBottom: 4 },
-  stepHint: { fontSize: 12, color: '#94a3b8', marginBottom: 14 },
-  inputGroup: { marginBottom: 16 },
+  stepTitle: { ...theme.TEXT.h3, marginBottom: 4 },
+  stepHint: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, marginBottom: 14 },
+  inputGroup: { marginBottom: theme.SIZES.md },
   inputLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   textInput: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-    fontSize: 14,
-    color: '#334155',
-    fontWeight: '500',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: { height: 88, textAlignVertical: 'top', paddingTop: 11 },
   pillContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: 20,
-    backgroundColor: '#f1f5f9',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderRadius: theme.RADIUS.xxl,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
-  pillSelected: { backgroundColor: '#7c3aed', borderColor: '#7c3aed' },
-  pillText: { fontSize: 12, fontWeight: '600', color: '#64748b' },
-  pillTextSelected: { color: '#fff' },
+  pillSelected: { backgroundColor: theme.COLORS.primary, borderColor: theme.COLORS.primary },
+  pillText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.semiBold },
+  pillTextSelected: { color: theme.COLORS.surface },
   checkboxContainer: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   checkbox: {
     width: 20,
     height: 20,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderRadius: theme.RADIUS.sm,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkboxChecked: { backgroundColor: '#7c3aed', borderColor: '#7c3aed' },
-  checkboxLabel: { fontSize: 14, color: '#475569', fontWeight: '500' },
-  kciSubform: { backgroundColor: '#f0fdf4', borderRadius: 14, padding: 14, marginBottom: 10 },
+  checkboxChecked: { backgroundColor: theme.COLORS.primary, borderColor: theme.COLORS.primary },
+  checkboxLabel: { ...theme.TEXT.body, fontWeight: theme.FONTS.medium },
+  kciSubform: { backgroundColor: theme.COLORS.success + '10', borderRadius: theme.RADIUS.lg, padding: 14, marginBottom: 10 },
   photoPicker: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#f5f3ff',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.primary + '10',
+    borderRadius: theme.RADIUS.lg,
     padding: 14,
-    borderWidth: 1.5,
-    borderColor: '#ddd6fe',
+    borderWidth: 1,
+    borderColor: theme.COLORS.primary + '30',
     marginBottom: 10,
   },
-  photoPickerText: { color: '#7c3aed', fontWeight: '600', fontSize: 14 },
+  photoPickerText: { color: theme.COLORS.primary, fontWeight: theme.FONTS.semiBold, fontSize: theme.TEXT.body.fontSize },
   imagesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  imageItem: { position: 'relative', width: 72, height: 72, borderRadius: 10, overflow: 'hidden' },
+  imageItem: { position: 'relative', width: 72, height: 72, borderRadius: theme.RADIUS.md, overflow: 'hidden' },
   imageThumbnail: { width: '100%', height: '100%' },
   removeImageBtn: {
     position: 'absolute',
@@ -1117,70 +1217,70 @@ const styles = StyleSheet.create({
   modalFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: theme.SIZES.md,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: theme.COLORS.borderLight,
     gap: 12,
   },
   footerBackBtn: {
     flex: 1,
     paddingVertical: 13,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
     alignItems: 'center',
   },
-  footerBackBtnText: { color: '#64748b', fontWeight: '700' },
+  footerBackBtnText: { color: theme.COLORS.textSecondary, fontWeight: theme.FONTS.bold },
   footerNextBtn: {
     flex: 2,
     paddingVertical: 13,
-    borderRadius: 12,
-    backgroundColor: '#7c3aed',
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
     alignItems: 'center',
   },
-  footerNextBtnText: { color: '#fff', fontWeight: '700' },
+  footerNextBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
   footerSaveBtn: {
     flex: 2,
     paddingVertical: 13,
-    borderRadius: 12,
-    backgroundColor: '#10b981',
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.success,
     alignItems: 'center',
   },
-  footerSaveBtnText: { color: '#fff', fontWeight: '700' },
+  footerSaveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
 
   // View modal
   viewContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     maxHeight: '90%',
   },
-  imageScrollRow: { marginBottom: 16 },
-  viewMainImage: { width: 220, height: 180, borderRadius: 14, marginRight: 10 },
+  imageScrollRow: { marginBottom: theme.SIZES.md },
+  viewMainImage: { width: 220, height: 180, borderRadius: theme.RADIUS.lg, marginRight: 10 },
   viewMainPlaceholder: {
     height: 160,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 14,
-    marginBottom: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginBottom: theme.SIZES.md,
   },
-  placeholderText: { color: '#94a3b8', marginTop: 8 },
-  infoSection: { padding: 16 },
+  placeholderText: { ...theme.TEXT.bodySecondary, marginTop: 8 },
+  infoSection: { padding: theme.SIZES.md },
   breedPriceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
   },
-  viewBreed: { fontSize: 18, fontWeight: '800', color: '#1e1b4b' },
-  viewPrice: { fontSize: 18, fontWeight: '800', color: '#7c3aed' },
+  viewBreed: { ...theme.TEXT.h2 },
+  viewPrice: { ...theme.TEXT.h2, color: theme.COLORS.primary },
   infoRow: {
     flexDirection: 'row',
     paddingVertical: 5,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: theme.COLORS.borderLight,
   },
-  infoLabel: { fontSize: 13, fontWeight: '700', color: '#64748b', width: 120 },
-  infoValue: { fontSize: 13, color: '#334155', flex: 1, fontWeight: '500' },
+  infoLabel: { ...theme.TEXT.label, width: 120 },
+  infoValue: { ...theme.TEXT.bodySecondary, flex: 1, fontWeight: theme.FONTS.medium },
 });

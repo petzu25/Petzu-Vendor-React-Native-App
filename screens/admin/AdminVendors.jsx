@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import axiosInstance from '../../lib/axios';
+import theme from '../../constants/theme';
 
 const VENDOR_TYPES = [
   { id: 'all', label: 'All', icon: 'grid' },
@@ -302,7 +303,7 @@ export default function AdminVendors() {
               <Feather
                 name={t.icon}
                 size={13}
-                color={isActive ? '#fff' : '#64748b'}
+                color={isActive ? theme.COLORS.surface : theme.COLORS.textSecondary}
                 style={{ marginRight: 5 }}
               />
               <Text style={[styles.typeTabLabel, isActive ? styles.typeTabLabelActive : null]}>
@@ -329,7 +330,7 @@ export default function AdminVendors() {
         }
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Feather name="briefcase" size={48} color="#c4b5fd" />
+            <Feather name="briefcase" size={48} color={theme.COLORS.primaryLight} />
             <Text style={styles.emptyTitle}>No Vendors Found</Text>
             <Text style={styles.emptyText}>
               {search || typeFilter !== 'all'
@@ -368,7 +369,7 @@ export default function AdminVendors() {
                       <TouchableOpacity
                         style={styles.closeBtn}
                         onPress={() => setModalVisible(false)}>
-                        <Feather name="x" size={20} color="#64748b" />
+                        <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                       </TouchableOpacity>
                     </View>
 
@@ -446,7 +447,7 @@ export default function AdminVendors() {
                         value ? (
                           <View key={label} style={styles.modalRow}>
                             <View style={styles.modalIconWrap}>
-                              <Feather name={icon} size={15} color="#7c3aed" />
+                              <Feather name={icon} size={15} color={theme.COLORS.primary} />
                             </View>
                             <View style={{ flex: 1 }}>
                               <Text style={styles.modalLabel}>{label}</Text>
@@ -478,19 +479,19 @@ export default function AdminVendors() {
                           </TouchableOpacity>
                         )}
                         <TouchableOpacity 
-                          style={[styles.actionBtn, { backgroundColor: selectedVendor.isBlocked ? '#10b981' : '#8b5cf6', shadowColor: selectedVendor.isBlocked ? '#10b981' : '#8b5cf6' }]} 
+                          style={[styles.actionBtn, { backgroundColor: selectedVendor.isBlocked ? theme.COLORS.success : theme.COLORS.primary, shadowColor: selectedVendor.isBlocked ? theme.COLORS.success : theme.COLORS.primary }]} 
                           activeOpacity={0.8}
                           onPress={() => handleToggleBlock(selectedVendor._id || selectedVendor.id, selectedVendor.isBlocked)}
                         >
-                          <Feather name={selectedVendor.isBlocked ? "unlock" : "lock"} size={18} color="#fff" />
+                          <Feather name={selectedVendor.isBlocked ? "unlock" : "lock"} size={18} color={theme.COLORS.surface} />
                           <Text style={styles.actionBtnText}>{selectedVendor.isBlocked ? "Unblock" : "Block"}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
-                          style={[styles.actionBtn, { backgroundColor: '#ef4444', shadowColor: '#ef4444' }]} 
+                          style={[styles.actionBtn, { backgroundColor: theme.COLORS.error, shadowColor: theme.COLORS.error }]} 
                           activeOpacity={0.8}
                           onPress={() => handleDelete(selectedVendor._id || selectedVendor.id, type)}
                         >
-                          <Feather name="trash-2" size={18} color="#fff" />
+                          <Feather name="trash-2" size={18} color={theme.COLORS.surface} />
                           <Text style={styles.actionBtnText}>Delete</Text>
                         </TouchableOpacity>
                       </View>
@@ -506,61 +507,55 @@ export default function AdminVendors() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  loadingText: { fontSize: 14, color: '#64748b', fontWeight: '500' },
+  container: { flex: 1, backgroundColor: theme.COLORS.canvas },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, backgroundColor: theme.COLORS.canvas },
+  loadingText: { ...theme.TEXT.bodySecondary },
 
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: theme.SIZES.md, paddingHorizontal: theme.SIZES.md, paddingTop: theme.SIZES.md },
   searchBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.sm,
+    height: theme.SIZES.inputHeight,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#334155', fontWeight: '500' },
+  searchInput: { flex: 1, ...theme.TEXT.body },
   countBadge: {
-    backgroundColor: '#7c3aed',
-    borderRadius: 10,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.md,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
-  countText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  countText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 13 },
 
-  typeTabsScroll: { marginBottom: 12 },
-  typeTabsContent: { flexDirection: 'row', gap: 8, paddingRight: 8 },
+  typeTabsScroll: { marginBottom: theme.SIZES.sm },
+  typeTabsContent: { flexDirection: 'row', gap: 8, paddingHorizontal: theme.SIZES.md },
   typeTab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
-  typeTabLabel: { fontSize: 12, fontWeight: '600', color: '#64748b' },
-  typeTabLabelActive: { color: '#ffffff' },
+  typeTabLabel: { ...theme.TEXT.bodySecondary },
+  typeTabLabelActive: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
 
-  list: { gap: 10, paddingBottom: 30 },
+  list: { gap: 12, paddingBottom: 30, paddingHorizontal: theme.SIZES.md },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
+    ...theme.SHADOWS.md,
   },
   avatar: {
     width: 46,
@@ -570,38 +565,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  avatarText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  avatarText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 16 },
   cardBody: { flex: 1 },
-  cardName: { fontSize: 15, fontWeight: '700', color: '#1e1b4b' },
-  cardShop: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  roleChipRow: { marginTop: 5 },
-  roleChip: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start' },
-  roleChipText: { fontSize: 10, fontWeight: '700' },
+  cardName: { ...theme.TEXT.body, fontWeight: theme.FONTS.bold },
+  cardShop: { ...theme.TEXT.label, marginTop: 2, color: theme.COLORS.textSecondary },
+  roleChipRow: { marginTop: 6 },
+  roleChip: { borderRadius: theme.RADIUS.sm, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start' },
+  roleChipText: { fontSize: 10, fontWeight: theme.FONTS.bold, textTransform: 'uppercase' },
   approvalBadge: {
     paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
   },
-  approvalText: { fontSize: 11, fontWeight: '700' },
+  approvalText: { fontSize: 10, fontWeight: theme.FONTS.bold, textTransform: 'uppercase' },
 
   emptyBox: { alignItems: 'center', paddingTop: 60, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#334155' },
-  emptyText: { fontSize: 13, color: '#94a3b8', textAlign: 'center' },
+  emptyTitle: { ...theme.TEXT.h3 },
+  emptyText: { ...theme.TEXT.bodySecondary, textAlign: 'center' },
 
   // Modal
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: 'rgba(15,23,42,0.4)', justifyContent: 'flex-end' },
   modalCard: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
     maxHeight: '85%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: theme.SIZES.md,
     gap: 10,
   },
   avatarLg: {
@@ -611,51 +606,51 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarTextLg: { color: '#fff', fontWeight: '800', fontSize: 20 },
-  typeChip: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 },
-  typeChipText: { fontSize: 11, fontWeight: '700' },
+  avatarTextLg: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 20 },
+  typeChip: { borderRadius: theme.RADIUS.md, paddingHorizontal: 10, paddingVertical: 4 },
+  typeChipText: { fontSize: 11, fontWeight: theme.FONTS.bold, textTransform: 'uppercase' },
   closeBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 'auto',
   },
-  modalName: { fontSize: 20, fontWeight: '800', color: '#1e1b4b', marginBottom: 4 },
-  modalShop: { fontSize: 14, fontWeight: '500', color: '#64748b', marginBottom: 14 },
+  modalName: { ...theme.TEXT.h2, marginBottom: 4 },
+  modalShop: { ...theme.TEXT.bodySecondary, marginBottom: theme.SIZES.md },
   approvalRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 16,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    paddingVertical: theme.SIZES.sm,
+    marginBottom: theme.SIZES.md,
   },
-  approvalRowText: { fontWeight: '700', fontSize: 13 },
-  modalRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
+  approvalRowText: { ...theme.TEXT.label, color: theme.COLORS.text },
+  modalRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.SIZES.md },
   modalIconWrap: {
     width: 34,
     height: 34,
-    borderRadius: 10,
-    backgroundColor: '#f5f3ff',
+    borderRadius: theme.RADIUS.sm,
+    backgroundColor: theme.COLORS.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  modalLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  modalValue: { fontSize: 14, fontWeight: '600', color: '#334155', marginTop: 1 },
+  modalLabel: { ...theme.TEXT.label },
+  modalValue: { ...theme.TEXT.body, fontWeight: theme.FONTS.semiBold, marginTop: 1 },
   actionButtonsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    marginTop: 24,
+    marginTop: theme.SIZES.lg,
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    paddingTop: 24,
+    borderTopColor: theme.COLORS.borderDark,
+    paddingTop: theme.SIZES.lg,
     paddingBottom: 10,
     justifyContent: 'space-between'
   },
@@ -667,16 +662,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
   },
   actionBtnText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 14,
-    letterSpacing: 0.3
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   }
 });

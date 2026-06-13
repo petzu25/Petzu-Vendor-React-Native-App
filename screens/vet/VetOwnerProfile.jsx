@@ -9,9 +9,9 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 export default function VetOwnerProfile() {
   const [loading, setLoading] = useState(true);
@@ -132,17 +132,17 @@ export default function VetOwnerProfile() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Hero Header */}
-      <LinearGradient colors={['#6366f1', '#4f46e5']} style={styles.heroCard}>
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
           <View style={styles.heroIconWrapper}>
-            <Feather name="user" size={32} color="#ffffff" />
+            <Feather name="user" size={32} color={theme.COLORS.surface} />
           </View>
           <View style={styles.heroTextWrapper}>
             <Text style={styles.heroTitle}>Doctor Profile</Text>
             <Text style={styles.heroSubtitle}>Manage your veterinary credentials & settings</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Account Verification Status */}
       <View
@@ -280,20 +280,16 @@ export default function VetOwnerProfile() {
         style={styles.saveButtonWrapper}
         onPress={handleSubmit}
         disabled={saving}>
-        <LinearGradient
-          colors={['#6366f1', '#4f46e5']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.saveButton}>
+        <View style={styles.saveButton}>
           {saving ? (
-            <ActivityIndicator size="small" color="#ffffff" />
+            <ActivityIndicator size="small" color={theme.COLORS.surface} />
           ) : (
             <>
-              <Feather name="save" size={20} color="#ffffff" style={styles.btnIcon} />
+              <Feather name="save" size={20} color={theme.COLORS.surface} style={styles.btnIcon} />
               <Text style={styles.saveButtonText}>Save Owner Profile</Text>
             </>
           )}
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -301,55 +297,55 @@ export default function VetOwnerProfile() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: theme.SIZES.xxl,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 15,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   heroCard: {
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 20,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
   },
   heroContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   heroIconWrapper: {
-    padding: 16,
+    padding: theme.SIZES.md,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    marginRight: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginRight: theme.SIZES.md,
   },
   heroTextWrapper: {
     flex: 1,
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#ffffff',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.surface,
     marginBottom: 4,
   },
   heroSubtitle: {
-    fontSize: 13,
+    ...theme.TEXT.bodySecondary,
     color: 'rgba(255, 255, 255, 0.85)',
   },
   statusCard: {
     borderWidth: 1,
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: theme.SIZES.lg,
   },
   statusIcon: {
     marginRight: 12,
@@ -359,61 +355,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusLabel: {
-    fontSize: 14,
-    fontWeight: '700',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   statusValue: {
-    fontWeight: '800',
+    fontWeight: theme.FONTS.bold,
     textTransform: 'uppercase',
   },
   statusSubtext: {
-    fontSize: 12,
+    ...theme.TEXT.label,
     marginTop: 4,
     lineHeight: 16,
     opacity: 0.85,
   },
   sectionCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
+    ...theme.SHADOWS.md,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 16,
+    ...theme.TEXT.h3,
+    marginBottom: theme.SIZES.md,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   disabledInput: {
-    backgroundColor: '#f1f5f9',
-    borderColor: '#e2e8f0',
-    color: '#64748b',
+    backgroundColor: theme.COLORS.canvas,
+    borderColor: theme.COLORS.border,
+    color: theme.COLORS.textSecondary,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -435,12 +421,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   saveButtonWrapper: {
-    borderRadius: 16,
-    shadowColor: '#6366f1',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     marginTop: 10,
   },
   saveButton: {
@@ -448,12 +430,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
   },
   saveButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   btnIcon: {
     marginRight: 8,

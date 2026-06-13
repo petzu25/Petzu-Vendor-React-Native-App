@@ -11,10 +11,10 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -293,17 +293,17 @@ export default function GroomingMyShop() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Hero Header */}
-      <LinearGradient colors={['#7c3aed', '#2563eb']} style={styles.heroCard}>
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
           <View style={styles.heroIconWrapper}>
-            <Feather name="scissors" size={32} color="#ffffff" />
+            <Feather name="scissors" size={32} color={theme.COLORS.surface} />
           </View>
           <View style={styles.heroTextWrapper}>
             <Text style={styles.heroTitle}>My Grooming Shop</Text>
             <Text style={styles.heroSubtitle}>Manage your premium pet grooming business</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Shop Profile Image */}
       <View style={styles.sectionCard}>
@@ -551,20 +551,16 @@ export default function GroomingMyShop() {
         style={styles.saveButtonWrapper}
         onPress={handleSubmit}
         disabled={saving}>
-        <LinearGradient
-          colors={['#7c3aed', '#2563eb']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.saveButton}>
+        <View style={styles.saveButton}>
           {saving ? (
-            <ActivityIndicator size="small" color="#ffffff" />
+            <ActivityIndicator size="small" color={theme.COLORS.surface} />
           ) : (
             <>
-              <Feather name="save" size={20} color="#ffffff" style={styles.btnIcon} />
+              <Feather name="save" size={20} color={theme.COLORS.surface} style={styles.btnIcon} />
               <Text style={styles.saveButtonText}>Save All Changes</Text>
             </>
           )}
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -572,64 +568,58 @@ export default function GroomingMyShop() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: theme.SIZES.xxl,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   heroCard: {
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 24,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
   },
   heroContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   heroIconWrapper: {
-    padding: 16,
+    padding: theme.SIZES.md,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    marginRight: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginRight: theme.SIZES.md,
   },
   heroTextWrapper: {
     flex: 1,
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#ffffff',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.surface,
     marginBottom: 4,
   },
   heroSubtitle: {
-    fontSize: 13,
+    ...theme.TEXT.bodySecondary,
     color: 'rgba(255, 255, 255, 0.85)',
   },
   sectionCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
+    ...theme.SHADOWS.md,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 16,
+    ...theme.TEXT.h3,
+    marginBottom: theme.SIZES.md,
   },
   imageSelectorContainer: {
     alignItems: 'center',
@@ -639,7 +629,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     aspectRatio: 16 / 9,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     overflow: 'hidden',
   },
   profileImage: {
@@ -656,53 +646,51 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.75)',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
   },
   changeImageText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
     marginLeft: 6,
   },
   uploadPlaceholder: {
     width: '100%',
     aspectRatio: 16 / 9,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     borderWidth: 2,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.border,
     borderStyle: 'dashed',
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   uploadPlaceholderText: {
     marginTop: 8,
-    fontSize: 14,
-    color: '#94a3b8',
-    fontWeight: '600',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
+    paddingVertical: theme.SIZES.sm,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -715,78 +703,76 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 14,
+    marginTop: theme.SIZES.sm,
+    marginBottom: theme.SIZES.sm,
   },
   coordinatesTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
+    ...theme.TEXT.label,
+    color: theme.COLORS.text,
   },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#10b981',
+    backgroundColor: theme.COLORS.success,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
   },
   locationButtonText: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   daysWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   dayBadge: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   dayBadgeSelected: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#a78bfa',
+    backgroundColor: theme.COLORS.primaryLight,
+    borderColor: theme.COLORS.primary,
   },
   dayBadgeText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   dayBadgeTextSelected: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
   },
   galleryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   gallerySubtitle: {
-    fontSize: 12,
-    color: '#64748b',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     marginTop: 2,
   },
   addGalleryBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f3ff',
+    backgroundColor: theme.COLORS.primaryLight,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
     borderWidth: 1,
-    borderColor: '#ddd6fe',
+    borderColor: theme.COLORS.primary,
   },
   addGalleryBtnText: {
-    color: '#7c3aed',
-    fontSize: 13,
-    fontWeight: '700',
+    color: theme.COLORS.primary,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
+    fontWeight: theme.FONTS.bold,
     marginLeft: 4,
   },
   galleryGrid: {
@@ -798,10 +784,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '30%',
     aspectRatio: 1,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
   },
   galleryImage: {
     width: '100%',
@@ -820,18 +806,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noImagesText: {
-    fontSize: 13,
-    color: '#94a3b8',
+    ...theme.TEXT.bodySecondary,
     fontStyle: 'italic',
     paddingVertical: 8,
   },
   saveButtonWrapper: {
-    borderRadius: 16,
-    shadowColor: '#7c3aed',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     marginTop: 10,
   },
   saveButton: {
@@ -839,12 +820,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
   },
   saveButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   btnIcon: {
     marginRight: 8,

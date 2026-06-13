@@ -9,9 +9,9 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 export default function BoardingOwnerProfile() {
   const [loading, setLoading] = useState(true);
@@ -130,17 +130,17 @@ export default function BoardingOwnerProfile() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       {/* Hero Header */}
-      <LinearGradient colors={['#8d6e63', '#5d4037']} style={styles.heroCard}>
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
           <View style={styles.heroIconWrapper}>
-            <Feather name="user" size={32} color="#ffffff" />
+            <Feather name="user" size={32} color={theme.COLORS.surface} />
           </View>
           <View style={styles.heroTextWrapper}>
             <Text style={styles.heroTitle}>Owner Profile</Text>
             <Text style={styles.heroSubtitle}>Manage your personal partner information</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Account Verification Status */}
       <View
@@ -260,20 +260,16 @@ export default function BoardingOwnerProfile() {
 
       {/* Actions */}
       <TouchableOpacity onPress={handleSubmit} disabled={saving} style={styles.submitButton}>
-        <LinearGradient
-          colors={['#8d6e63', '#5d4037']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientBtn}>
+        <View style={styles.gradientBtn}>
           {saving ? (
-            <ActivityIndicator size="small" color="#ffffff" />
+            <ActivityIndicator size="small" color={theme.COLORS.surface} />
           ) : (
             <>
-              <Feather name="save" size={16} color="#ffffff" />
+              <Feather name="save" size={16} color={theme.COLORS.surface} />
               <Text style={styles.submitText}>Save Profile Changes</Text>
             </>
           )}
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
 
       <View style={{ height: 40 }} />
@@ -283,28 +279,29 @@ export default function BoardingOwnerProfile() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    padding: 20,
-    backgroundColor: '#f8fafc',
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   heroCard: {
-    borderRadius: 24,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.xxl,
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: theme.SIZES.lg,
   },
   heroContent: {
-    padding: 24,
+    padding: theme.SIZES.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
@@ -321,22 +318,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#ffffff',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.surface,
   },
   heroSubtitle: {
-    fontSize: 13,
+    ...theme.TEXT.bodySecondary,
     color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 2,
-    fontWeight: '500',
+    fontWeight: theme.FONTS.medium,
   },
   statusCard: {
     flexDirection: 'row',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
     borderWidth: 1.5,
-    marginBottom: 20,
+    marginBottom: theme.SIZES.lg,
     alignItems: 'flex-start',
   },
   statusIcon: {
@@ -347,74 +343,66 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusLabel: {
-    fontSize: 13,
-    fontWeight: '700',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   statusValue: {
-    fontWeight: '900',
+    fontWeight: theme.FONTS.bold,
     textTransform: 'uppercase',
   },
   statusSubtext: {
-    fontSize: 11,
+    ...theme.TEXT.label,
     marginTop: 4,
     lineHeight: 16,
-    fontWeight: '500',
+    fontWeight: theme.FONTS.medium,
   },
   sectionCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 20,
-    marginBottom: 20,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
+    marginBottom: theme.SIZES.lg,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 1,
+    borderColor: theme.COLORS.border,
+    ...theme.SHADOWS.sm,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
-    marginBottom: 16,
+    ...theme.TEXT.h3,
+    marginBottom: theme.SIZES.md,
     borderBottomWidth: 1.5,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
     paddingBottom: 8,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   label: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748b',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   disabledInput: {
-    backgroundColor: '#f1f5f9',
-    color: '#64748b',
+    backgroundColor: theme.COLORS.canvas,
+    color: theme.COLORS.textSecondary,
+    borderColor: theme.COLORS.border,
   },
   readOnlyText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    ...theme.TEXT.bodySecondary,
+    color: theme.COLORS.text,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    paddingVertical: theme.SIZES.md,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -426,28 +414,24 @@ const styles = StyleSheet.create({
   passwordWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
   },
   eyeBtn: {
     padding: 12,
   },
   inputHelp: {
-    fontSize: 11,
-    color: '#94a3b8',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: theme.FONTS.medium,
   },
   submitButton: {
-    borderRadius: 14,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
   },
   gradientBtn: {
     paddingVertical: 14,
@@ -455,10 +439,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+    backgroundColor: theme.COLORS.primary,
   },
   submitText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
 });

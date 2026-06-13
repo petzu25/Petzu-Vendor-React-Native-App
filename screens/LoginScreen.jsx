@@ -13,9 +13,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../store/useAuthStore';
+import theme from '../constants/theme';
 
 const ACCOUNT_TYPES = [
   { label: 'Auto-Detect', value: '' },
@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#f3e8ff', '#e0f2fe', '#e0e7ff']} style={styles.container}>
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -220,17 +220,13 @@ export default function LoginScreen({ navigation }) {
                   style={styles.signInButtonWrapper}
                   onPress={handleSubmit}
                   disabled={isLoggingIn}>
-                  <LinearGradient
-                    colors={['#9333ea', '#2563eb']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.signInButton}>
+                  <View style={styles.signInButton}>
                     {isLoggingIn ? (
                       <ActivityIndicator size="small" color="#ffffff" />
                     ) : (
                       <Text style={styles.signInText}>Sign In</Text>
                     )}
-                  </LinearGradient>
+                  </View>
                 </TouchableOpacity>
 
                 {/* Footer redirection */}
@@ -296,13 +292,14 @@ export default function LoginScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       </Modal>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
   },
   safeArea: {
     flex: 1,
@@ -312,108 +309,93 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingBottom: theme.SIZES.xxl,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    marginTop: 12,
-    marginBottom: 24,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    marginTop: theme.SIZES.md,
+    marginBottom: theme.SIZES.lg,
+    paddingVertical: theme.SIZES.sm,
+    paddingHorizontal: theme.SIZES.md,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.sm,
   },
   backText: {
     marginLeft: 6,
-    color: '#7c3aed',
-    fontSize: 14,
-    fontWeight: '600',
+    color: theme.COLORS.primary,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
+    fontWeight: theme.FONTS.semiBold,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 28,
+    alignItems: 'flex-start',
+    marginBottom: theme.SIZES.xl,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#1e1b4b',
-    marginBottom: 8,
+    ...theme.TEXT.h1,
+    marginBottom: theme.SIZES.sm,
   },
   subtitle: {
-    fontSize: 15,
-    color: '#475569',
-    textAlign: 'center',
+    ...theme.TEXT.body,
+    color: theme.COLORS.textSecondary,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.lg,
+    ...theme.SHADOWS.lg,
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef2f2',
+    backgroundColor: theme.COLORS.errorLight,
     borderWidth: 1,
-    borderColor: '#fca5a5',
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 20,
+    borderColor: theme.COLORS.error,
+    padding: theme.SIZES.md,
+    borderRadius: theme.RADIUS.md,
+    marginBottom: theme.SIZES.lg,
   },
   errorIcon: {
     marginRight: 8,
   },
   errorText: {
-    color: '#b91c1c',
+    color: theme.COLORS.error,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: theme.FONTS.semiBold,
     flex: 1,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: theme.SIZES.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 8,
+    ...theme.TEXT.label,
+    marginBottom: theme.SIZES.sm,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   inputError: {
-    borderColor: '#f87171',
+    borderColor: theme.COLORS.error,
   },
   errorHelp: {
-    color: '#ef4444',
+    color: theme.COLORS.error,
     fontSize: 12,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: theme.FONTS.medium,
     marginLeft: 4,
   },
   fieldHelp: {
-    color: '#64748b',
+    color: theme.COLORS.textSecondary,
     fontSize: 11,
     marginTop: 4,
     marginLeft: 4,
@@ -441,40 +423,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
   },
   dropdownValue: {
-    fontSize: 15,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   placeholderText: {
-    color: '#94a3b8',
+    color: theme.COLORS.textSecondary,
   },
   signInButtonWrapper: {
-    borderRadius: 14,
-    shadowColor: '#9333ea',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
-    marginTop: 10,
-    marginBottom: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginTop: theme.SIZES.sm,
+    marginBottom: theme.SIZES.md,
+    ...theme.SHADOWS.md,
   },
   signInButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
-    borderRadius: 14,
+    height: theme.SIZES.buttonHeight,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
   },
   signInText: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: theme.FONTS.bold,
   },
   formFooter: {
     flexDirection: 'row',

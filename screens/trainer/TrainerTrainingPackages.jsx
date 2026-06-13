@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import theme from '../../constants/theme';
 
 const INITIAL_PACKAGES = [
   {
@@ -135,7 +136,7 @@ export default function TrainerTrainingPackages() {
       <TextInput
         style={[styles.formInput, multiline ? styles.formInputMulti : null]}
         placeholder={placeholder || label}
-        placeholderTextColor="#94a3b8"
+        placeholderTextColor={theme.COLORS.textSecondary}
         value={form[field]}
         onChangeText={(v) => setForm((prev) => ({ ...prev, [field]: v }))}
         multiline={multiline}
@@ -156,7 +157,7 @@ export default function TrainerTrainingPackages() {
           </Text>
         </View>
         <TouchableOpacity style={styles.addBtn} onPress={openAdd}>
-          <Feather name="plus" size={18} color="#fff" />
+          <Feather name="plus" size={18} color={theme.COLORS.surface} />
           <Text style={styles.addBtnText}>Add</Text>
         </TouchableOpacity>
       </View>
@@ -165,7 +166,7 @@ export default function TrainerTrainingPackages() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
         {packages.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Feather name="award" size={48} color="#bbf7d0" />
+            <Feather name="award" size={48} color={theme.COLORS.primary + '40'} />
             <Text style={styles.emptyTitle}>No Packages Yet</Text>
             <Text style={styles.emptyText}>
               Tap the + Add button to create your first training package.
@@ -204,14 +205,14 @@ export default function TrainerTrainingPackages() {
                   </Text>
                 ) : null}
               </View>
-              <Feather name="chevron-right" size={18} color="#cbd5e1" />
+              <Feather name="chevron-right" size={18} color={theme.COLORS.textTertiary} />
             </TouchableOpacity>
           ))
         )}
 
         {/* Tip box */}
         <View style={styles.tipBox}>
-          <Feather name="zap" size={15} color="#15803d" style={{ marginRight: 8 }} />
+          <Feather name="zap" size={15} color={theme.COLORS.success} style={{ marginRight: 8 }} />
           <Text style={styles.tipText}>
             Keep your packages up to date to attract more clients. Include duration, sessions and a
             clear price.
@@ -237,7 +238,7 @@ export default function TrainerTrainingPackages() {
                   setModalVisible(false);
                   setForm(EMPTY_FORM);
                 }}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -267,7 +268,7 @@ export default function TrainerTrainingPackages() {
                       selectedColor === c ? styles.colorDotSelected : null,
                     ]}
                     onPress={() => setSelectedColor(c)}>
-                    {selectedColor === c && <Feather name="check" size={12} color="#fff" />}
+                    {selectedColor === c && <Feather name="check" size={12} color={theme.COLORS.surface} />}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -282,13 +283,13 @@ export default function TrainerTrainingPackages() {
               onPress={handleSave}
               disabled={saving}>
               {saving ? (
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator size="small" color={theme.COLORS.surface} />
               ) : (
                 <>
                   <Feather
                     name={editingId ? 'save' : 'plus-circle'}
                     size={18}
-                    color="#fff"
+                    color={theme.COLORS.surface}
                     style={{ marginRight: 8 }}
                   />
                   <Text style={styles.saveBtnText}>
@@ -316,7 +317,7 @@ export default function TrainerTrainingPackages() {
                     <Feather name="award" size={22} color={selectedPkg.color} />
                   </View>
                   <TouchableOpacity style={styles.closeBtn} onPress={() => setDetailVisible(false)}>
-                    <Feather name="x" size={20} color="#64748b" />
+                    <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                   </TouchableOpacity>
                 </View>
 
@@ -351,10 +352,10 @@ export default function TrainerTrainingPackages() {
 
                 <View style={styles.detailActions}>
                   <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: '#e2e8f0' }]}
+                    style={[styles.actionBtn, { borderColor: theme.COLORS.borderDark }]}
                     onPress={() => handleDelete(selectedPkg.id)}>
-                    <Feather name="trash-2" size={16} color="#dc2626" />
-                    <Text style={[styles.actionBtnText, { color: '#dc2626' }]}>Delete</Text>
+                    <Feather name="trash-2" size={16} color={theme.COLORS.error} />
+                    <Text style={[styles.actionBtnText, { color: theme.COLORS.error }]}>Delete</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
@@ -362,8 +363,8 @@ export default function TrainerTrainingPackages() {
                       { backgroundColor: selectedPkg.color, borderColor: selectedPkg.color },
                     ]}
                     onPress={() => openEdit(selectedPkg)}>
-                    <Feather name="edit-2" size={16} color="#fff" />
-                    <Text style={[styles.actionBtnText, { color: '#fff' }]}>Edit Package</Text>
+                    <Feather name="edit-2" size={16} color={theme.COLORS.surface} />
+                    <Text style={[styles.actionBtnText, { color: theme.COLORS.surface }]}>Edit Package</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -376,7 +377,7 @@ export default function TrainerTrainingPackages() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: theme.COLORS.canvas, paddingHorizontal: theme.SIZES.md, paddingTop: theme.SIZES.md },
 
   topRow: {
     flexDirection: 'row',
@@ -384,33 +385,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
   },
-  topTitle: { fontSize: 16, fontWeight: '800', color: '#1e1b4b' },
-  topSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
+  topTitle: { ...theme.TEXT.h2 },
+  topSub: { ...theme.TEXT.bodySecondary, marginTop: 2 },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#16a34a',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.md,
     paddingHorizontal: 14,
     paddingVertical: 9,
   },
-  addBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  addBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 13 },
 
   list: { gap: 12, paddingBottom: 20 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    ...theme.SHADOWS.sm,
   },
   cardAccent: { width: 5, alignSelf: 'stretch' },
   cardBody: { flex: 1, padding: 14 },
@@ -420,45 +417,46 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 6,
   },
-  cardName: { fontSize: 15, fontWeight: '700', color: '#1e1b4b', flex: 1, marginRight: 8 },
-  cardPrice: { fontSize: 15, fontWeight: '800' },
+  cardName: { ...theme.TEXT.h3, flex: 1, marginRight: 8 },
+  cardPrice: { ...theme.TEXT.body, fontWeight: theme.FONTS.black },
   cardMeta: { flexDirection: 'row', gap: 8, marginBottom: 6 },
   metaChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#f8fafc',
-    borderRadius: 8,
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.sm,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  metaText: { fontSize: 11, color: '#64748b', fontWeight: '600' },
-  cardDesc: { fontSize: 12, color: '#94a3b8', lineHeight: 17 },
+  metaText: { ...theme.TEXT.label, color: theme.COLORS.textSecondary },
+  cardDesc: { ...theme.TEXT.bodySecondary, fontSize: 12, lineHeight: 17 },
 
   emptyBox: { alignItems: 'center', paddingTop: 50, gap: 10 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#334155' },
-  emptyText: { fontSize: 13, color: '#94a3b8', textAlign: 'center' },
+  emptyTitle: { ...theme.TEXT.h2 },
+  emptyText: { ...theme.TEXT.bodySecondary, textAlign: 'center' },
 
   tipBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#f0fdf4',
-    borderRadius: 14,
+    backgroundColor: theme.COLORS.success + '15',
+    borderRadius: theme.RADIUS.lg,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: theme.COLORS.success + '30',
     marginTop: 4,
   },
-  tipText: { flex: 1, fontSize: 12, color: '#15803d', lineHeight: 17, fontWeight: '500' },
+  tipText: { flex: 1, ...theme.TEXT.bodySecondary, color: theme.COLORS.success, lineHeight: 17, fontWeight: theme.FONTS.medium },
 
   // Modal
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
   modalCard: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    padding: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
+    padding: theme.SIZES.lg,
     maxHeight: '90%',
+    ...theme.SHADOWS.lg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -466,33 +464,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 18,
   },
-  modalTitle: { fontSize: 17, fontWeight: '800', color: '#1e1b4b' },
+  modalTitle: { ...theme.TEXT.h2 },
   closeBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.canvas,
     justifyContent: 'center',
     alignItems: 'center',
   },
   formField: { marginBottom: 14 },
   formLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#334155',
+    ...theme.TEXT.label,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   formInput: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    fontSize: 14,
-    color: '#334155',
-    fontWeight: '500',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.medium,
   },
   formInputMulti: { height: 80, textAlignVertical: 'top', paddingTop: 10 },
 
@@ -506,47 +501,43 @@ const styles = StyleSheet.create({
   },
   colorDotSelected: {
     borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    borderColor: theme.COLORS.surface,
+    ...theme.SHADOWS.sm,
   },
 
   saveBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     paddingVertical: 14,
     marginTop: 12,
   },
   saveBtnDisabled: { opacity: 0.7 },
-  saveBtnText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+  saveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold, fontSize: 15 },
 
   // Detail modal
   pkgIcon: {
     width: 52,
     height: 52,
-    borderRadius: 16,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  detailName: { fontSize: 20, fontWeight: '800', marginBottom: 4 },
-  detailPrice: { fontSize: 24, fontWeight: '900', color: '#1e1b4b', marginBottom: 20 },
+  detailName: { ...theme.TEXT.h2, marginBottom: 4 },
+  detailPrice: { ...theme.TEXT.h1, color: theme.COLORS.text, marginBottom: 20 },
   detailRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 },
   detailIcon: {
     width: 32,
     height: 32,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
     marginTop: 2,
   },
-  detailLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
-  detailValue: { fontSize: 14, fontWeight: '600', color: '#334155', marginTop: 1 },
+  detailLabel: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, textTransform: 'uppercase' },
+  detailValue: { ...theme.TEXT.body, fontWeight: theme.FONTS.semiBold, marginTop: 1 },
   detailActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
   actionBtn: {
     flex: 1,
@@ -555,8 +546,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
   },
-  actionBtnText: { fontWeight: '700', fontSize: 14 },
+  actionBtnText: { fontWeight: theme.FONTS.bold, fontSize: 14 },
 });

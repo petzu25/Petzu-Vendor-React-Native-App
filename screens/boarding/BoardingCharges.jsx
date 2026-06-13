@@ -11,9 +11,9 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 const CATEGORIES = ['Dog', 'Cat', 'Rabbit', 'Bird', 'Others'];
 const AC_OPTIONS = ['AC', 'Non-AC'];
@@ -221,18 +221,18 @@ export default function BoardingCharges() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <LinearGradient colors={['#8d6e63', '#5d4037']} style={styles.heroCard}>
+      <View style={styles.heroCard}>
         <View style={styles.heroContent}>
           <View style={styles.heroTextWrapper}>
             <Text style={styles.heroTitle}>Boarding Charges</Text>
             <Text style={styles.heroSubtitle}>Manage your cage packages & daily pricing</Text>
           </View>
           <TouchableOpacity style={styles.addBtn} onPress={handleOpenAdd}>
-            <Feather name="plus" size={16} color="#8d6e63" />
+            <Feather name="plus" size={16} color={theme.COLORS.primary} />
             <Text style={styles.addBtnText}>Add New</Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Main List */}
       {loading ? (
@@ -430,19 +430,15 @@ export default function BoardingCharges() {
 
               {/* Submit button */}
               <TouchableOpacity onPress={handleSubmit} disabled={saving} style={styles.saveBtn}>
-                <LinearGradient
-                  colors={['#8d6e63', '#5d4037']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.saveBtnGradient}>
+                <View style={styles.saveBtnGradient}>
                   {saving ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={theme.COLORS.surface} />
                   ) : (
                     <Text style={styles.saveBtnText}>
                       {editingId ? 'Update Package' : 'Create Package'}
                     </Text>
                   )}
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
               <View style={{ height: 40 }} />
             </ScrollView>
@@ -456,20 +452,17 @@ export default function BoardingCharges() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
   },
   heroCard: {
-    borderRadius: 24,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.xxl,
     overflow: 'hidden',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+    marginBottom: theme.SIZES.lg,
+    ...theme.SHADOWS.md,
   },
   heroContent: {
-    padding: 20,
+    padding: theme.SIZES.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -479,62 +472,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#ffffff',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.surface,
   },
   heroSubtitle: {
-    fontSize: 12,
+    ...theme.TEXT.bodySecondary,
     color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 2,
-    fontWeight: '500',
   },
   addBtn: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.COLORS.surface,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 14,
+    borderRadius: theme.RADIUS.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    ...theme.SHADOWS.sm,
   },
   addBtnText: {
-    color: '#8d6e63',
-    fontWeight: '800',
-    fontSize: 13,
+    color: theme.COLORS.primary,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   listContent: {
     paddingBottom: 24,
   },
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: '#f1f5f9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 1,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
+    marginBottom: theme.SIZES.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.border,
+    ...theme.SHADOWS.sm,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -543,34 +525,31 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
   },
   cardSubtitle: {
-    fontSize: 12,
-    color: '#64748b',
-    fontWeight: '600',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     marginTop: 2,
   },
   priceBadge: {
     alignItems: 'flex-end',
-    backgroundColor: '#fdfbf7',
+    backgroundColor: theme.COLORS.canvas,
     borderWidth: 1,
-    borderColor: '#eedec7',
+    borderColor: theme.COLORS.borderLight,
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.md,
   },
   priceText: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#8d6e63',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.primary,
   },
   priceLabel: {
     fontSize: 9,
-    fontWeight: '700',
-    color: '#a1a1aa',
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.textSecondary,
   },
   cardBody: {
     marginVertical: 12,
@@ -588,7 +567,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: theme.RADIUS.sm,
     borderWidth: 1,
   },
   badgeAC: {
@@ -596,30 +575,29 @@ const styles = StyleSheet.create({
     borderColor: '#bae6fd',
   },
   badgeNonAC: {
-    backgroundColor: '#f8fafc',
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderColor: theme.COLORS.border,
   },
   badgeFood: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundColor: theme.COLORS.success + '20',
+    borderColor: theme.COLORS.success + '40',
   },
   badgeNoFood: {
-    backgroundColor: '#f8fafc',
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderColor: theme.COLORS.border,
   },
   badgeTagText: {
     fontSize: 10,
-    fontWeight: '750',
+    fontWeight: theme.FONTS.bold,
   },
   detailsText: {
-    fontSize: 12,
-    color: '#475569',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     lineHeight: 18,
-    fontWeight: '500',
   },
   cardDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.borderLight,
   },
   cardActions: {
     flexDirection: 'row',
@@ -633,54 +611,51 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    borderRadius: theme.RADIUS.sm,
+    borderWidth: 1,
   },
   editBtn: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    backgroundColor: theme.COLORS.success + '20',
+    borderColor: theme.COLORS.success + '40',
   },
   editBtnText: {
-    color: '#059669',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.success,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   deleteBtn: {
-    backgroundColor: '#fef2f2',
-    borderColor: '#fca5a5',
+    backgroundColor: theme.COLORS.error + '20',
+    borderColor: theme.COLORS.error + '40',
   },
   deleteBtnText: {
-    color: '#ef4444',
-    fontSize: 12,
-    fontWeight: '700',
+    color: theme.COLORS.error,
+    fontSize: theme.TEXT.label.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
     minHeight: 250,
   },
   emptyIconBg: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.canvas,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 13,
-    color: '#64748b',
+    ...theme.TEXT.bodySecondary,
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -691,16 +666,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '85%',
     paddingTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    ...theme.SHADOWS.lg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -709,12 +680,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   modalTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
   },
   closeBtn: {
     padding: 4,
@@ -723,76 +692,74 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   label: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748b',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   input: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
+    paddingVertical: theme.SIZES.sm,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
   },
   dropdownTriggerText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.semiBold,
   },
   dropdownOptions: {
     marginTop: 4,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
     overflow: 'hidden',
   },
   dropdownOption: {
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   dropdownOptionText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#334155',
+    ...theme.TEXT.body,
   },
   saveBtn: {
-    borderRadius: 14,
-    overflow: 'hidden',
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     marginTop: 10,
   },
   saveBtnGradient: {
     paddingVertical: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
   },
   saveBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
 });

@@ -14,10 +14,10 @@ import {
   Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../store/useAuthStore';
 import axios from '../lib/axios';
+import theme from '../constants/theme';
 
 const ACCOUNT_TYPES = [
   { label: 'Pet Breeder', value: 'Vendor' },
@@ -282,7 +282,7 @@ export default function SignupScreen({ navigation }) {
   const criteria = getPasswordCriteria();
 
   return (
-    <LinearGradient colors={['#f3e8ff', '#e0f2fe', '#e0e7ff']} style={styles.container}>
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -653,17 +653,13 @@ export default function SignupScreen({ navigation }) {
                       style={styles.submitBtnWrapper}
                       onPress={handleSubmit}
                       disabled={isSigningUp}>
-                      <LinearGradient
-                        colors={['#9333ea', '#2563eb']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.submitBtn}>
+                      <View style={styles.submitBtn}>
                         {isSigningUp ? (
                           <ActivityIndicator size="small" color="#ffffff" />
                         ) : (
                           <Text style={styles.submitBtnText}>Create Account</Text>
                         )}
-                      </LinearGradient>
+                      </View>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -759,13 +755,14 @@ export default function SignupScreen({ navigation }) {
           </View>
         </View>
       </Modal>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
   },
   safeArea: {
     flex: 1,
@@ -775,8 +772,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingBottom: theme.SIZES.xxl,
   },
   topNav: {
     flexDirection: 'row',
@@ -788,26 +785,22 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingVertical: theme.SIZES.sm,
+    paddingHorizontal: theme.SIZES.md,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.sm,
   },
   backText: {
     marginLeft: 6,
-    color: '#7c3aed',
-    fontSize: 14,
-    fontWeight: '600',
+    color: theme.COLORS.primary,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
+    fontWeight: theme.FONTS.semiBold,
   },
   stepTitle: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#64748b',
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.textSecondary,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -827,26 +820,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   progressDotActive: {
-    backgroundColor: '#ffffff',
-    borderColor: '#7c3aed',
+    backgroundColor: theme.COLORS.surface,
+    borderColor: theme.COLORS.primary,
     borderWidth: 2,
-    shadowColor: '#7c3aed',
+    shadowColor: theme.COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
   progressDotDone: {
-    backgroundColor: '#7c3aed',
-    borderColor: '#7c3aed',
+    backgroundColor: theme.COLORS.primary,
+    borderColor: theme.COLORS.primary,
   },
   progressDotText: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#64748b',
+    fontWeight: theme.FONTS.bold,
+    color: theme.COLORS.textSecondary,
   },
   progressDotTextActive: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
   },
   progressLine: {
     flex: 1,
@@ -855,104 +848,95 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   progressLineDone: {
-    backgroundColor: '#7c3aed',
+    backgroundColor: theme.COLORS.primary,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: theme.SIZES.xl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#1e1b4b',
+    ...theme.TEXT.h2,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: theme.SIZES.sm,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#475569',
+    ...theme.TEXT.body,
+    color: theme.COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     paddingHorizontal: 10,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.lg,
+    ...theme.SHADOWS.lg,
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef2f2',
+    backgroundColor: theme.COLORS.errorLight,
     borderWidth: 1,
-    borderColor: '#fca5a5',
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 20,
+    borderColor: theme.COLORS.error,
+    padding: theme.SIZES.md,
+    borderRadius: theme.RADIUS.md,
+    marginBottom: theme.SIZES.lg,
   },
   errorIcon: {
     marginRight: 8,
   },
   errorText: {
-    color: '#b91c1c',
+    color: theme.COLORS.error,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: theme.FONTS.semiBold,
     flex: 1,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: theme.SIZES.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 8,
+    ...theme.TEXT.label,
+    marginBottom: theme.SIZES.sm,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textAreaInput: {
     minHeight: 80,
     textAlignVertical: 'top',
+    paddingVertical: theme.SIZES.sm,
   },
   inputError: {
-    borderColor: '#f87171',
+    borderColor: theme.COLORS.error,
   },
   errorHelp: {
-    color: '#ef4444',
+    color: theme.COLORS.error,
     fontSize: 12,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: theme.FONTS.medium,
     marginLeft: 4,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    height: theme.SIZES.inputHeight,
   },
   dropdownValue: {
-    fontSize: 15,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   passwordInputContainer: {
     position: 'relative',
@@ -987,12 +971,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   checkSuccess: {
-    color: '#10b981',
-    fontWeight: '700',
+    color: theme.COLORS.success,
+    fontWeight: theme.FONTS.bold,
   },
   termsContainer: {
-    marginBottom: 20,
-    marginTop: 10,
+    marginBottom: theme.SIZES.lg,
+    marginTop: theme.SIZES.sm,
   },
   termsHeader: {
     flexDirection: 'row',
@@ -1006,37 +990,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   termsText: {
-    color: '#475569',
-    fontSize: 14,
+    color: theme.COLORS.textSecondary,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
   },
   termsLink: {
-    color: '#7c3aed',
-    fontWeight: '700',
-    fontSize: 14,
+    color: theme.COLORS.primary,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.bodySecondary.fontSize,
     textDecorationLine: 'underline',
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: theme.SIZES.sm,
     gap: 12,
   },
   navBtnBack: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    backgroundColor: '#ffffff',
+    paddingVertical: theme.SIZES.sm,
+    paddingHorizontal: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.surface,
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
   },
   navBtnBackText: {
-    color: '#475569',
-    fontSize: 15,
-    fontWeight: '700',
+    color: theme.COLORS.textSecondary,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
     marginLeft: 4,
   },
   navBtnNext: {
@@ -1045,34 +1029,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
-    backgroundColor: '#7c3aed',
-    borderRadius: 14,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
   },
   navBtnNextText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
     marginRight: 4,
   },
   submitBtnWrapper: {
     flex: 1,
-    borderRadius: 14,
-    shadowColor: '#9333ea',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
   },
   submitBtn: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
-    borderRadius: 14,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
   },
   submitBtnText: {
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: '700',
+    color: theme.COLORS.surface,
+    fontSize: theme.TEXT.body.fontSize,
+    fontWeight: theme.FONTS.bold,
   },
   successContainer: {
     alignItems: 'center',

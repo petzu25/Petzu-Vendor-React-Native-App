@@ -12,9 +12,9 @@ import {
   Modal,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import axios from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
+import theme from '../../constants/theme';
 
 const CATEGORIES = ['Dog', 'Cat', 'Bird', 'Fish', 'Other'];
 const GENDERS = ['Male', 'Female', 'Mixed', 'Unsexed'];
@@ -28,6 +28,7 @@ export default function SaleReceipts() {
 
   // Form Modal
   const [formVisible, setFormVisible] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [editingReceipt, setEditingReceipt] = useState(null);
 
   // Buyer Details
@@ -120,6 +121,7 @@ export default function SaleReceipts() {
     setShopFullAddress(authUser?.shopAddress || '');
     setSellerLocation(authUser?.location || '');
     setSellerPhone(authUser?.phoneNumber || '');
+    setCurrentStep(1);
     setFormVisible(true);
   };
 
@@ -160,8 +162,12 @@ export default function SaleReceipts() {
     setShopFullAddress(receipt.shopFullAddress || authUser?.shopAddress || '');
     setSellerLocation(receipt.location || authUser?.location || '');
     setSellerPhone(receipt.phoneNumber || authUser?.phoneNumber || '');
+    setCurrentStep(1);
     setFormVisible(true);
   };
+
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 6));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handleAddAccessory = () => {
     if (!newAccName || !newAccPrice) {
@@ -335,21 +341,21 @@ export default function SaleReceipts() {
               setBillVisible(true);
             }}
             style={[styles.actionBtn, styles.viewBtn]}>
-            <Feather name="file-text" size={14} color="#7c3aed" />
+            <Feather name="file-text" size={14} color={theme.COLORS.primary} />
             <Text style={styles.viewBtnText}>Invoice</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => handleOpenEdit(item)}
             style={[styles.actionBtn, styles.editBtn]}>
-            <Feather name="edit" size={14} color="#2563eb" />
+            <Feather name="edit" size={14} color={theme.COLORS.primary} />
             <Text style={styles.editBtnText}>Edit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => handleDelete(item._id)}
             style={[styles.actionBtn, styles.deleteBtn]}>
-            <Feather name="trash-2" size={14} color="#ef4444" />
+            <Feather name="trash-2" size={14} color={theme.COLORS.error} />
           </TouchableOpacity>
         </View>
       </View>
@@ -360,11 +366,7 @@ export default function SaleReceipts() {
     <View style={styles.container}>
       {/* Metric Revenue Banner */}
       <View style={styles.revenueBanner}>
-        <LinearGradient
-          colors={['#7c3aed', '#5b21b6']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.bannerGradient}>
+        <View style={styles.bannerGradient}>
           <View>
             <Text style={styles.revenueLabel}>Total Receipts Revenue</Text>
             <Text style={styles.revenueValue}>₹{totalRevenue.toLocaleString()}</Text>
@@ -372,23 +374,23 @@ export default function SaleReceipts() {
           <View style={styles.revenueStats}>
             <Text style={styles.revenueStatsText}>{receipts.length} Sales</Text>
           </View>
-        </LinearGradient>
+        </View>
       </View>
 
       {/* Search and Generate button */}
       <View style={styles.controlsRow}>
         <View style={styles.searchBar}>
-          <Feather name="search" size={16} color="#94a3b8" />
+          <Feather name="search" size={16} color={theme.COLORS.textSecondary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search by ID, Breed, Buyer..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={theme.COLORS.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
         <TouchableOpacity style={styles.createBtn} onPress={handleOpenAdd}>
-          <Feather name="plus" size={16} color="#ffffff" />
+          <Feather name="plus" size={16} color={theme.COLORS.surface} />
           <Text style={styles.createBtnText}>New Bill</Text>
         </TouchableOpacity>
       </View>
@@ -396,7 +398,7 @@ export default function SaleReceipts() {
       {/* Receipts List */}
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#7c3aed" />
+          <ActivityIndicator size="large" color={theme.COLORS.primary} />
           <Text style={styles.loadingText}>Loading transactions history...</Text>
         </View>
       ) : filteredReceipts.length > 0 ? (
@@ -410,7 +412,7 @@ export default function SaleReceipts() {
       ) : (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconBg}>
-            <Feather name="clipboard" size={32} color="#7c3aed" />
+            <Feather name="clipboard" size={32} color={theme.COLORS.primary} />
           </View>
           <Text style={styles.emptyTitle}>No Invoices Issued</Text>
           <Text style={styles.emptySubtitle}>
@@ -432,7 +434,7 @@ export default function SaleReceipts() {
                 {editingReceipt ? 'Edit Pet Sale Receipt' : 'New Pet Sale Receipt'}
               </Text>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setFormVisible(false)}>
-                <Feather name="x" size={20} color="#64748b" />
+                <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -446,7 +448,7 @@ export default function SaleReceipts() {
                   value={buyerName}
                   onChangeText={setBuyerName}
                   placeholder="Enter buyer name"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
               </View>
 
@@ -457,7 +459,7 @@ export default function SaleReceipts() {
                   value={buyerPhone}
                   onChangeText={(text) => setBuyerPhone(text.replace(/\D/g, '').slice(0, 10))}
                   placeholder="Enter 10-digit number"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                   keyboardType="phone-pad"
                 />
               </View>
@@ -469,7 +471,7 @@ export default function SaleReceipts() {
                   value={buyerLocation}
                   onChangeText={setBuyerLocation}
                   placeholder="e.g. Bangalore"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
               </View>
 
@@ -480,7 +482,7 @@ export default function SaleReceipts() {
                   value={buyerAddress}
                   onChangeText={setBuyerAddress}
                   placeholder="Enter full address"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                   multiline
                   numberOfLines={2}
                 />
@@ -516,7 +518,7 @@ export default function SaleReceipts() {
                   value={breed}
                   onChangeText={setBreed}
                   placeholder="e.g. Persian Cat"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
               </View>
 
@@ -556,7 +558,7 @@ export default function SaleReceipts() {
                     value={petPrice}
                     onChangeText={setPetPrice}
                     placeholder="Price in ₹"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor={theme.COLORS.textSecondary}
                     keyboardType="numeric"
                   />
                 </View>
@@ -569,7 +571,7 @@ export default function SaleReceipts() {
                   value={petQuality}
                   onChangeText={setPetQuality}
                   placeholder="e.g. Show Quality / Pedigree"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
               </View>
 
@@ -580,7 +582,7 @@ export default function SaleReceipts() {
                   value={microchipNumber}
                   onChangeText={setMicrochipNumber}
                   placeholder="Enter chip code"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
               </View>
 
@@ -614,7 +616,7 @@ export default function SaleReceipts() {
                       value={kciNumber}
                       onChangeText={setKciNumber}
                       placeholder="Reg number"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
                   <View style={styles.inputGroup}>
@@ -624,7 +626,7 @@ export default function SaleReceipts() {
                       value={kciName}
                       onChangeText={setKciName}
                       placeholder="Registered pedigree name"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
                 </View>
@@ -639,7 +641,7 @@ export default function SaleReceipts() {
                   value={newAccName}
                   onChangeText={setNewAccName}
                   placeholder="Accessory / Food item name"
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={theme.COLORS.textSecondary}
                 />
                 <View style={styles.gridRow}>
                   <TextInput
@@ -647,7 +649,7 @@ export default function SaleReceipts() {
                     value={newAccQty}
                     onChangeText={setNewAccQty}
                     placeholder="Qty"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor={theme.COLORS.textSecondary}
                     keyboardType="numeric"
                   />
                   <TextInput
@@ -655,11 +657,11 @@ export default function SaleReceipts() {
                     value={newAccPrice}
                     onChangeText={setNewAccPrice}
                     placeholder="Price per unit"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor={theme.COLORS.textSecondary}
                     keyboardType="numeric"
                   />
                   <TouchableOpacity style={styles.accAddBtn} onPress={handleAddAccessory}>
-                    <Feather name="plus" size={20} color="#ffffff" />
+                    <Feather name="plus" size={20} color={theme.COLORS.surface} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -678,7 +680,7 @@ export default function SaleReceipts() {
                       <TouchableOpacity
                         style={styles.accRemoveBtn}
                         onPress={() => handleRemoveAccessory(idx)}>
-                        <Feather name="trash-2" size={14} color="#ef4444" />
+                        <Feather name="trash-2" size={14} color={theme.COLORS.error} />
                       </TouchableOpacity>
                     </View>
                   ))}
@@ -690,7 +692,7 @@ export default function SaleReceipts() {
                 onPress={handleSave}
                 disabled={submitting}>
                 {submitting ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
+                  <ActivityIndicator size="small" color={theme.COLORS.surface} />
                 ) : (
                   <Text style={styles.saveInvoiceBtnText}>Generate Receipt Bill</Text>
                 )}
@@ -713,7 +715,7 @@ export default function SaleReceipts() {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Pet Sale Invoice Receipt</Text>
                 <TouchableOpacity style={styles.closeBtn} onPress={() => setBillVisible(false)}>
-                  <Feather name="x" size={20} color="#64748b" />
+                  <Feather name="x" size={20} color={theme.COLORS.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -721,7 +723,7 @@ export default function SaleReceipts() {
                 {/* Visual Bill Sheet */}
                 <View style={styles.billSheet}>
                   <View style={styles.billHeader}>
-                    <Feather name="heart" size={24} color="#7c3aed" />
+                    <Feather name="heart" size={24} color={theme.COLORS.primary} />
                     <Text style={styles.billBrand}>PETZU breeder network</Text>
                     <Text style={styles.billSerial}>Invoice #{selectedReceipt.receiptId}</Text>
                   </View>
@@ -829,136 +831,199 @@ export default function SaleReceipts() {
 }
 
 const styles = StyleSheet.create({
+  kciSubform: { backgroundColor: theme.COLORS.success + '10', borderRadius: theme.RADIUS.lg, padding: 14, marginBottom: 10 },
+  pillTextSelected: { color: theme.COLORS.surface },
+  pillText: { ...theme.TEXT.bodySecondary, fontWeight: theme.FONTS.semiBold },
+  pillSelected: { backgroundColor: theme.COLORS.primary, borderColor: theme.COLORS.primary },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: theme.RADIUS.xxl,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+  },
+  footerSaveBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerSaveBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.success,
+    alignItems: 'center',
+  },
+  footerNextBtnText: { color: theme.COLORS.surface, fontWeight: theme.FONTS.bold },
+  footerNextBtn: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.primary,
+    alignItems: 'center',
+  },
+  footerBackBtnText: { color: theme.COLORS.textSecondary, fontWeight: theme.FONTS.bold },
+  footerBackBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    alignItems: 'center',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: theme.SIZES.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.COLORS.borderLight,
+    gap: 12,
+  },
+  stepHint: { ...theme.TEXT.label, color: theme.COLORS.textSecondary, marginBottom: 14 },
+  stepTitle: { ...theme.TEXT.h3, marginBottom: 4 },
+  stepContainer: { paddingVertical: 10 },
+  stepLineCompleted: { backgroundColor: theme.COLORS.success },
+  stepLine: { width: 28, height: 2, backgroundColor: theme.COLORS.border },
+  stepDotTextActive: { color: theme.COLORS.surface },
+  stepDotText: { fontSize: 12, fontWeight: theme.FONTS.bold, color: theme.COLORS.textSecondary },
+  stepDotCompleted: { backgroundColor: theme.COLORS.success },
+  stepDotActive: { backgroundColor: theme.COLORS.primary },
+  stepDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepIndicatorRow: { flexDirection: 'row', alignItems: 'center' },
+  stepsIndicator: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
+    paddingHorizontal: theme.SIZES.md,
+    paddingTop: theme.SIZES.md,
   },
   revenueBanner: {
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xl,
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   bannerGradient: {
-    padding: 20,
+    padding: theme.SIZES.lg,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: theme.COLORS.primary,
   },
   revenueLabel: {
-    fontSize: 12,
+    ...theme.TEXT.label,
     color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
-    textTransform: 'uppercase',
     marginBottom: 4,
   },
   revenueValue: {
-    fontSize: 26,
-    fontWeight: '900',
-    color: '#ffffff',
+    ...theme.TEXT.h1,
+    color: theme.COLORS.surface,
   },
   revenueStats: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.md,
   },
   revenueStatsText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 13,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   searchBar: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    height: 48,
-    paddingHorizontal: 12,
+    borderColor: theme.COLORS.border,
+    height: theme.SIZES.inputHeight,
+    paddingHorizontal: theme.SIZES.md,
     gap: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
+    fontWeight: theme.FONTS.medium,
   },
   createBtn: {
-    backgroundColor: '#7c3aed',
-    height: 48,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    backgroundColor: theme.COLORS.primary,
+    height: theme.SIZES.inputHeight,
+    paddingHorizontal: theme.SIZES.md,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
     gap: 6,
   },
   createBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 14,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   listContent: {
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xl,
+    padding: theme.SIZES.md,
+    marginBottom: theme.SIZES.md,
+    ...theme.SHADOWS.sm,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.border,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: theme.SIZES.sm,
   },
   receiptId: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
   },
   receiptDate: {
-    fontSize: 12,
-    color: '#94a3b8',
+    ...theme.TEXT.bodySecondary,
     marginTop: 2,
-    fontWeight: '600',
+    fontWeight: theme.FONTS.semiBold,
   },
   totalBadge: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: theme.COLORS.primary + '15',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.sm,
   },
   totalBadgeText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#7c3aed',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.black,
+    color: theme.COLORS.primary,
   },
   cardBody: {
     gap: 6,
@@ -969,19 +1034,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   infoLabel: {
-    fontSize: 13,
-    color: '#64748b',
-    fontWeight: '600',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   infoVal: {
-    fontSize: 13,
-    color: '#1e293b',
-    fontWeight: '700',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
     flex: 1,
   },
   cardDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: theme.COLORS.borderLight,
     marginBottom: 12,
   },
   cardActions: {
@@ -991,45 +1054,45 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     height: 36,
-    borderRadius: 8,
-    borderWidth: 1.5,
+    borderRadius: theme.RADIUS.sm,
+    borderWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     gap: 6,
   },
   viewBtn: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#ddd6fe',
+    backgroundColor: theme.COLORS.primary + '15',
+    borderColor: theme.COLORS.primary + '30',
   },
   viewBtnText: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: theme.FONTS.bold,
   },
   editBtn: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    backgroundColor: theme.COLORS.secondary + '20',
+    borderColor: theme.COLORS.secondary + '40',
   },
   editBtnText: {
-    color: '#2563eb',
+    color: theme.COLORS.secondary,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: theme.FONTS.bold,
   },
   deleteBtn: {
     width: 36,
     paddingHorizontal: 0,
     justifyContent: 'center',
-    backgroundColor: '#fef2f2',
-    borderColor: '#fca5a5',
+    backgroundColor: theme.COLORS.error + '20',
+    borderColor: theme.COLORS.error + '40',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
+    padding: theme.SIZES.xl,
+    backgroundColor: theme.COLORS.surface,
+    borderRadius: theme.RADIUS.xxl,
     marginTop: 20,
     minHeight: 250,
   },
@@ -1037,20 +1100,17 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#f5f3ff',
+    backgroundColor: theme.COLORS.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h2,
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: '#64748b',
+    ...theme.TEXT.bodySecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -1061,11 +1121,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   formContainer: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '85%',
     paddingTop: 20,
+    ...theme.SHADOWS.lg,
   },
   closeBtn: {
     padding: 4,
@@ -1074,47 +1135,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingHorizontal: theme.SIZES.lg,
+    paddingBottom: theme.SIZES.md,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.h3,
   },
   formScroll: {
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   sectionHeader: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#7c3aed',
+    ...theme.TEXT.h3,
+    color: theme.COLORS.primary,
     marginTop: 10,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
     borderLeftWidth: 3,
-    borderColor: '#7c3aed',
+    borderColor: theme.COLORS.primary,
     paddingLeft: 8,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   inputLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    backgroundColor: theme.COLORS.canvas,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
     paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 60,
@@ -1124,27 +1180,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   categoryPill: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
   },
   categoryPillSelected: {
-    backgroundColor: '#f5f3ff',
-    borderColor: '#a78bfa',
+    backgroundColor: theme.COLORS.primary + '15',
+    borderColor: theme.COLORS.primary,
   },
   categoryPillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#475569',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   categoryPillTextSelected: {
-    color: '#7c3aed',
+    color: theme.COLORS.primary,
   },
   gridRow: {
     flexDirection: 'row',
@@ -1156,67 +1211,66 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   selectWrapper: {
-    height: 48,
+    height: theme.SIZES.inputHeight,
     justifyContent: 'center',
   },
   genderOption: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 10,
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.md,
     marginRight: 6,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
   genderOptionActive: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#3b82f6',
+    backgroundColor: theme.COLORS.secondary + '15',
+    borderColor: theme.COLORS.secondary,
   },
   genderOptionText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748b',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.bold,
   },
   genderOptionTextActive: {
-    color: '#2563eb',
+    color: theme.COLORS.secondary,
   },
   kciGroup: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     padding: 14,
-    borderRadius: 14,
-    marginBottom: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginBottom: theme.SIZES.md,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.borderLight,
   },
   accessorySubform: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
     padding: 14,
-    borderRadius: 14,
-    marginBottom: 16,
+    borderRadius: theme.RADIUS.lg,
+    marginBottom: theme.SIZES.md,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.borderLight,
     gap: 10,
   },
   accInput: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.COLORS.surface,
   },
   accAddBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#10b981',
+    width: theme.SIZES.inputHeight,
+    height: theme.SIZES.inputHeight,
+    borderRadius: theme.RADIUS.lg,
+    backgroundColor: theme.COLORS.success,
     justifyContent: 'center',
     alignItems: 'center',
   },
   accList: {
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 14,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
     paddingHorizontal: 14,
     paddingVertical: 6,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.COLORS.surface,
     marginBottom: 20,
   },
   accListItem: {
@@ -1224,83 +1278,78 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   accItemName: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   accItemMeta: {
-    fontSize: 11,
-    color: '#94a3b8',
+    ...theme.TEXT.label,
     marginTop: 2,
-    fontWeight: '600',
   },
   accItemTotal: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.black,
     marginRight: 12,
   },
   accRemoveBtn: {
     padding: 4,
   },
   saveInvoiceBtn: {
-    backgroundColor: '#7c3aed',
+    backgroundColor: theme.COLORS.primary,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: theme.RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
   },
   saveInvoiceBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
   // Invoice Sheet modal styling
   invoiceSheet: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '90%',
     paddingTop: 20,
+    ...theme.SHADOWS.lg,
   },
   invoiceScroll: {
     flex: 1,
-    padding: 24,
+    padding: theme.SIZES.lg,
   },
   billSheet: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.canvas,
+    borderRadius: theme.RADIUS.xl,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
     padding: 20,
     marginBottom: 40,
   },
   billHeader: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   billBrand: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#7c3aed',
+    ...theme.TEXT.label,
+    color: theme.COLORS.primary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginTop: 6,
   },
   billSerial: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
     marginTop: 4,
   },
   billDivider: {
     height: 1.5,
-    backgroundColor: '#e2e8f0',
-    marginVertical: 16,
+    backgroundColor: theme.COLORS.borderDark,
+    marginVertical: theme.SIZES.md,
     borderStyle: 'dashed',
   },
   partiesContainer: {
@@ -1312,27 +1361,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   partyTitle: {
-    fontSize: 10,
-    fontWeight: '850',
-    color: '#94a3b8',
+    ...theme.TEXT.label,
     marginBottom: 6,
     letterSpacing: 0.5,
   },
   partyName: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.black,
     marginBottom: 2,
   },
   partyText: {
+    ...theme.TEXT.bodySecondary,
     fontSize: 12,
-    color: '#475569',
     lineHeight: 16,
   },
   billSectionTitle: {
-    fontSize: 12,
-    fontWeight: '850',
-    color: '#94a3b8',
+    ...theme.TEXT.label,
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -1343,29 +1387,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: theme.COLORS.borderLight,
   },
   billItemName: {
-    fontSize: 13,
-    fontWeight: '750',
-    color: '#1e293b',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   billItemDesc: {
-    fontSize: 11,
-    color: '#64748b',
+    ...theme.TEXT.label,
     marginTop: 2,
   },
   billItemQty: {
-    fontSize: 13,
-    color: '#475569',
-    fontWeight: '600',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
     width: 30,
     textAlign: 'center',
   },
   billItemTotal: {
-    fontSize: 13,
-    color: '#1e293b',
-    fontWeight: '750',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
     textAlign: 'right',
     minWidth: 80,
   },
@@ -1379,43 +1419,38 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   calLabel: {
-    fontSize: 13,
-    color: '#64748b',
-    fontWeight: '600',
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   calVal: {
-    fontSize: 13,
-    color: '#1e293b',
-    fontWeight: '700',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.bold,
   },
   grandLabel: {
-    fontSize: 14,
-    color: '#1e293b',
-    fontWeight: '850',
+    ...theme.TEXT.body,
+    fontWeight: theme.FONTS.black,
   },
   grandVal: {
-    fontSize: 16,
-    color: '#7c3aed',
-    fontWeight: '900',
+    ...theme.TEXT.h2,
+    color: theme.COLORS.primary,
   },
   footerNoteContainer: {
     marginTop: 32,
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.COLORS.surface,
     padding: 14,
-    borderRadius: 12,
+    borderRadius: theme.RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: theme.COLORS.borderLight,
   },
   footerNoteTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#475569',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     textAlign: 'center',
   },
   footerNoteText: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: theme.COLORS.textSecondary,
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 14,

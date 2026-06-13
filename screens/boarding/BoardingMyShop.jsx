@@ -11,10 +11,10 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
+import theme from '../../constants/theme';
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -506,21 +506,17 @@ export default function BoardingMyShop() {
           )}
         </ScrollView>
 
-        <TouchableOpacity onPress={handleSave} disabled={saving} style={styles.saveButton}>
-          <LinearGradient
-            colors={['#8d6e63', '#5d4037']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.saveBtnGradient}>
+        <TouchableOpacity onPress={handleSave} disabled={saving} style={styles.saveButtonWrapper}>
+          <View style={styles.saveBtnGradient}>
             {saving ? (
-              <ActivityIndicator size="small" color="#ffffff" />
+              <ActivityIndicator size="small" color={theme.COLORS.surface} />
             ) : (
               <>
-                <Feather name="check-circle" size={16} color="#ffffff" />
+                <Feather name="check-circle" size={16} color={theme.COLORS.surface} />
                 <Text style={styles.saveBtnText}>Save Boarding Shop Details</Text>
               </>
             )}
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
       </View>
       <View style={{ height: 40 }} />
@@ -531,24 +527,24 @@ export default function BoardingMyShop() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.COLORS.canvas,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: theme.SIZES.lg,
+    backgroundColor: theme.COLORS.canvas,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#8d6e63',
-    fontWeight: '600',
+    marginTop: theme.SIZES.sm,
+    ...theme.TEXT.bodySecondary,
+    fontWeight: theme.FONTS.semiBold,
   },
   shopBannerContainer: {
     height: 180,
     width: '100%',
-    backgroundColor: '#e2e8f0',
+    backgroundColor: theme.COLORS.border,
   },
   bannerImageButton: {
     flex: 1,
@@ -562,45 +558,41 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#eedec7',
+    backgroundColor: theme.COLORS.canvas,
   },
   placeholderBannerText: {
-    color: '#8d6e63',
-    fontWeight: '700',
-    fontSize: 13,
+    color: theme.COLORS.textSecondary,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.label.fontSize,
     marginTop: 8,
   },
   formSection: {
-    padding: 20,
+    padding: theme.SIZES.lg,
   },
   sectionHeader: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#3e2723',
-    marginTop: 16,
-    marginBottom: 12,
+    ...theme.TEXT.h3,
+    marginTop: theme.SIZES.md,
+    marginBottom: theme.SIZES.sm,
     borderLeftWidth: 3,
-    borderColor: '#8d6e63',
+    borderColor: theme.COLORS.primary,
     paddingLeft: 8,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   inputLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#475569',
+    ...theme.TEXT.label,
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: '#1e293b',
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.lg,
+    paddingHorizontal: theme.SIZES.md,
+    paddingVertical: theme.SIZES.md,
+    fontSize: theme.TEXT.body.fontSize,
+    color: theme.COLORS.text,
   },
   textArea: {
     minHeight: 80,
@@ -617,15 +609,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     borderWidth: 1,
-    borderColor: '#8d6e63',
+    borderColor: theme.COLORS.primary,
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 8,
+    borderRadius: theme.RADIUS.sm,
   },
   detectBtnText: {
-    fontSize: 11,
-    color: '#8d6e63',
-    fontWeight: '700',
+    fontSize: theme.TEXT.label.fontSize,
+    color: theme.COLORS.primary,
+    fontWeight: theme.FONTS.bold,
   },
   gridRow: {
     flexDirection: 'row',
@@ -639,31 +631,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: theme.SIZES.md,
   },
   dayButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#ffffff',
-    borderWidth: 1.5,
-    borderColor: '#e2e8f0',
-    borderRadius: 10,
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    borderRadius: theme.RADIUS.md,
   },
   dayButtonSelected: {
-    backgroundColor: '#8d6e63',
-    borderColor: '#8d6e63',
+    backgroundColor: theme.COLORS.primary,
+    borderColor: theme.COLORS.primary,
   },
   dayButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748b',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
   },
   dayButtonTextSelected: {
-    color: '#ffffff',
+    color: theme.COLORS.surface,
   },
   gallerySubtext: {
-    fontSize: 12,
-    color: '#64748b',
+    ...theme.TEXT.label,
+    color: theme.COLORS.textSecondary,
     marginBottom: 12,
   },
   galleryScroll: {
@@ -673,7 +664,7 @@ const styles = StyleSheet.create({
   galleryImageContainer: {
     width: 120,
     height: 80,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.md,
     marginRight: 10,
     position: 'relative',
     overflow: 'hidden',
@@ -697,23 +688,22 @@ const styles = StyleSheet.create({
   addGalleryButton: {
     width: 120,
     height: 80,
-    borderRadius: 10,
+    borderRadius: theme.RADIUS.md,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#8d6e63',
+    borderColor: theme.COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fdfbf7',
+    backgroundColor: theme.COLORS.canvas,
   },
   addGalleryText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#8d6e63',
+    ...theme.TEXT.label,
+    color: theme.COLORS.primary,
     marginTop: 4,
   },
-  saveButton: {
-    borderRadius: 14,
-    overflow: 'hidden',
+  saveButtonWrapper: {
+    borderRadius: theme.RADIUS.lg,
+    ...theme.SHADOWS.md,
     marginTop: 8,
   },
   saveBtnGradient: {
@@ -722,10 +712,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+    backgroundColor: theme.COLORS.primary,
+    borderRadius: theme.RADIUS.lg,
   },
   saveBtnText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 15,
+    color: theme.COLORS.surface,
+    fontWeight: theme.FONTS.bold,
+    fontSize: theme.TEXT.body.fontSize,
   },
 });
