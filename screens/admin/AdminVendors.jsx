@@ -63,9 +63,29 @@ export default function AdminVendors() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     try {
-      const res = await axiosInstance.get('/vendors/get-all-vendors');
-      const data = Array.isArray(res.data) ? res.data : res.data?.vendors || res.data?.data || [];
-      setVendors(data);
+      const [vRes, dRes, tRes, gRes, bRes] = await Promise.all([
+        axiosInstance.get('/adminvendors').catch(() => ({ data: [] })),
+        axiosInstance.get('/adminvendors/doctors').catch(() => ({ data: [] })),
+        axiosInstance.get('/adminvendors/pettrainers').catch(() => ({ data: [] })),
+        axiosInstance.get('/adminvendors/petgroomers').catch(() => ({ data: [] })),
+        axiosInstance.get('/adminvendors/petboardings').catch(() => ({ data: [] }))
+      ]);
+
+      const vendors = Array.isArray(vRes.data) ? vRes.data : vRes.data?.vendors || [];
+      const doctors = Array.isArray(dRes.data) ? dRes.data : dRes.data?.doctors || [];
+      const trainers = Array.isArray(tRes.data) ? tRes.data : tRes.data?.trainers || [];
+      const groomers = Array.isArray(gRes.data) ? gRes.data : gRes.data?.groomers || [];
+      const boardings = Array.isArray(bRes.data) ? bRes.data : bRes.data?.boardings || [];
+
+      const combined = [
+        ...vendors.map(v => ({ ...v, role: v.role || 'breeder' })),
+        ...doctors.map(d => ({ ...d, role: d.role || 'vet clinic' })),
+        ...trainers.map(t => ({ ...t, role: t.role || 'trainer' })),
+        ...groomers.map(g => ({ ...g, role: g.role || 'grooming shop' })),
+        ...boardings.map(b => ({ ...b, role: b.role || 'boarding shop' }))
+      ];
+
+      setVendors(combined);
     } catch (err) {
       console.error('AdminVendors fetch error:', err.message);
     } finally {
@@ -101,20 +121,95 @@ export default function AdminVendors() {
     return name.slice(0, 2).toUpperCase();
   };
 
+  const getEndpointBase = (type) => {
+    if (type === 'breeder' || type === 'vendor') return '/adminvendors';
+    if (type === 'boarding') return '/adminvendors/petboardings';
+    if (type === 'grooming') return '/adminvendors/petgroomers';
+    if (type === 'vet') return '/adminvendors/doctors';
+    if (type === 'trainer') return '/adminvendors/pettrainers';
+    return '/adminvendors';
+  };
+
+  const handleApprove = (id, type) => {
+    Alert.alert('Confirm', 'Approve this account?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Approve', onPress: async () => {
+          try {
+            await axiosInstance.patch(`${getEndpointBase(type)}/approve/${id}`);
+            fetchVendors(true);
+            setModalVisible(false);
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', 'Failed to approve.');
+          }
+      }}
+    ]);
+  };
+
+  const handleReject = (id, type) => {
+    Alert.alert('Confirm', 'Reject this account?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Reject', onPress: async () => {
+          try {
+            await axiosInstance.patch(`${getEndpointBase(type)}/reject/${id}`);
+            fetchVendors(true);
+            setModalVisible(false);
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', 'Failed to reject.');
+          }
+      }}
+    ]);
+  };
+
+  const handleDelete = (id, type) => {
+    Alert.alert('Confirm Delete', 'Delete this account? This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+          try {
+            await axiosInstance.delete(`${getEndpointBase(type)}/${id}`);
+            fetchVendors(true);
+            setModalVisible(false);
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', 'Failed to delete.');
+          }
+      }}
+    ]);
+  };
+
+  const handleToggleBlock = (id, isBlocked) => {
+    const action = isBlocked ? "Unblock" : "Block";
+    Alert.alert('Confirm', `${action} this account?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: action, style: isBlocked ? 'default' : 'destructive', onPress: async () => {
+          try {
+            await axiosInstance.patch(`/adminvendors/toggle-block/${id}`);
+            fetchVendors(true);
+            setModalVisible(false);
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', `Failed to ${action.toLowerCase()}.`);
+          }
+      }}
+    ]);
+  };
+
   const openDetail = (vendor) => {
     setSelectedVendor(vendor);
-    setModalVisible(true);
+    setModalVisible(false);
+    setTimeout(() => setModalVisible(true), 50);
   };
 
   const approvalColor = (v) => {
-    if (v.isApproved === true || v.approved === true) return '#16a34a';
-    if (v.isApproved === false || v.approved === false) return '#dc2626';
+    if (v.verificationStatus === 'approved' || v.isApproved === true || v.approved === true) return '#16a34a';
+    if (v.verificationStatus === 'rejected' || v.isApproved === false || v.approved === false) return '#dc2626';
     return '#d97706';
   };
 
   const approvalLabel = (v) => {
-    if (v.isApproved === true || v.approved === true) return 'Approved';
-    if (v.isApproved === false || v.approved === false) return 'Rejected';
+    if (v.verificationStatus === 'approved' || v.isApproved === true || v.approved === true) return 'Approved';
+    if (v.verificationStatus === 'rejected' || v.isApproved === false || v.approved === false) return 'Rejected';
     return 'Pending';
   };
 
@@ -360,6 +455,45 @@ export default function AdminVendors() {
                           </View>
                         ) : null
                       )}
+
+                      <View style={styles.actionButtonsContainer}>
+                        {(selectedVendor.verificationStatus !== 'approved' && selectedVendor.isApproved !== true && selectedVendor.approved !== true) && (
+                          <TouchableOpacity 
+                            style={[styles.actionBtn, { backgroundColor: '#10b981', shadowColor: '#10b981' }]} 
+                            activeOpacity={0.8}
+                            onPress={() => handleApprove(selectedVendor._id || selectedVendor.id, type)}
+                          >
+                            <Feather name="check-circle" size={18} color="#fff" />
+                            <Text style={styles.actionBtnText}>Approve</Text>
+                          </TouchableOpacity>
+                        )}
+                        {(selectedVendor.verificationStatus !== 'rejected' && selectedVendor.isApproved !== false && selectedVendor.approved !== false) && (
+                          <TouchableOpacity 
+                            style={[styles.actionBtn, { backgroundColor: '#f59e0b', shadowColor: '#f59e0b' }]} 
+                            activeOpacity={0.8}
+                            onPress={() => handleReject(selectedVendor._id || selectedVendor.id, type)}
+                          >
+                            <Feather name="x-circle" size={18} color="#fff" />
+                            <Text style={styles.actionBtnText}>Reject</Text>
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity 
+                          style={[styles.actionBtn, { backgroundColor: selectedVendor.isBlocked ? '#10b981' : '#8b5cf6', shadowColor: selectedVendor.isBlocked ? '#10b981' : '#8b5cf6' }]} 
+                          activeOpacity={0.8}
+                          onPress={() => handleToggleBlock(selectedVendor._id || selectedVendor.id, selectedVendor.isBlocked)}
+                        >
+                          <Feather name={selectedVendor.isBlocked ? "unlock" : "lock"} size={18} color="#fff" />
+                          <Text style={styles.actionBtnText}>{selectedVendor.isBlocked ? "Unblock" : "Block"}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[styles.actionBtn, { backgroundColor: '#ef4444', shadowColor: '#ef4444' }]} 
+                          activeOpacity={0.8}
+                          onPress={() => handleDelete(selectedVendor._id || selectedVendor.id, type)}
+                        >
+                          <Feather name="trash-2" size={18} color="#fff" />
+                          <Text style={styles.actionBtnText}>Delete</Text>
+                        </TouchableOpacity>
+                      </View>
                     </ScrollView>
                   </>
                 );
@@ -514,4 +648,35 @@ const styles = StyleSheet.create({
   },
   modalLabel: { fontSize: 10, fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' },
   modalValue: { fontSize: 14, fontWeight: '600', color: '#334155', marginTop: 1 },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    paddingTop: 24,
+    paddingBottom: 10,
+    justifyContent: 'space-between'
+  },
+  actionBtn: {
+    flex: 1,
+    minWidth: '45%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  actionBtnText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 14,
+    letterSpacing: 0.3
+  }
 });

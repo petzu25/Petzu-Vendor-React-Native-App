@@ -27,8 +27,13 @@ export default function AdminClients() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     try {
-      const res = await axiosInstance.get('/vendors/get-all-clients');
-      const data = Array.isArray(res.data) ? res.data : res.data?.clients || res.data?.data || [];
+      const res = await axiosInstance.get('/adminusers');
+      let data = [];
+      if (Array.isArray(res.data)) data = res.data;
+      else if (res.data?.clients && Array.isArray(res.data.clients)) data = res.data.clients;
+      else if (res.data?.data && Array.isArray(res.data.data)) data = res.data.data;
+      else if (res.data?.data?.clients && Array.isArray(res.data.data.clients)) data = res.data.data.clients;
+      else if (res.data?.data?.data && Array.isArray(res.data.data.data)) data = res.data.data.data;
       setClients(data);
       setFiltered(data);
     } catch (err) {

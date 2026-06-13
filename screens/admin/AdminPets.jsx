@@ -42,8 +42,14 @@ export default function AdminPets() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     try {
-      const res = await axiosInstance.get('/aboutpet/getAllAboutPet');
-      const data = Array.isArray(res.data) ? res.data : res.data?.pets || res.data?.data || [];
+      const res = await axiosInstance.get('/adminallpets');
+      let data = [];
+      if (Array.isArray(res.data)) data = res.data;
+      else if (res.data?.salePets && Array.isArray(res.data.salePets)) data = res.data.salePets;
+      else if (res.data?.pets && Array.isArray(res.data.pets)) data = res.data.pets;
+      else if (res.data?.data && Array.isArray(res.data.data)) data = res.data.data;
+      else if (res.data?.data?.pets && Array.isArray(res.data.data.pets)) data = res.data.data.pets;
+      else if (res.data?.data?.data && Array.isArray(res.data.data.data)) data = res.data.data.data;
       setPets(data);
       setFiltered(data);
     } catch (err) {

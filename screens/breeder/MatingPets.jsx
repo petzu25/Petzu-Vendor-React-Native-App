@@ -54,6 +54,7 @@ export default function MatingPets() {
   const [breederName, setBreederName] = useState('');
   const [phoneNum, setPhoneNum] = useState('');
   const [shopAddress, setShopAddress] = useState('');
+  const [formDescription, setFormDescription] = useState('');
 
   const [formImages, setFormImages] = useState([]);
   const [vaccinationProof, setVaccinationProof] = useState([]);
@@ -103,6 +104,7 @@ export default function MatingPets() {
     setBreederName(authUser?.fullName || '');
     setPhoneNum(authUser?.phoneNumber || '');
     setShopAddress(authUser?.shopAddress || '');
+    setFormDescription('');
     setFormImages([]);
     setVaccinationProof([]);
     setKciCertImages([]);
@@ -128,6 +130,7 @@ export default function MatingPets() {
     setBreederName(pet.breederName || authUser?.fullName || '');
     setPhoneNum(pet.phoneNum || authUser?.phoneNumber || '');
     setShopAddress(pet.shopAddress || authUser?.shopAddress || '');
+    setFormDescription(pet.description || '');
     setFormImages(pet.photosAndVideos || []);
     setVaccinationProof(pet.vaccinationProof || []);
     setKciCertImages(pet.kciCertificate || []);
@@ -236,6 +239,7 @@ export default function MatingPets() {
       data.append('breederName', breederName);
       data.append('phoneNum', phoneNum);
       if (shopAddress) data.append('shopAddress', shopAddress);
+      if (formDescription) data.append('description', formDescription);
 
       // Pet images
       const localUris = formImages.filter((uri) => !uri.startsWith('http'));
@@ -502,12 +506,12 @@ export default function MatingPets() {
 
               <View style={styles.gridRow}>
                 <View style={[styles.inputGroup, styles.gridCol]}>
-                  <Text style={styles.inputLabel}>Age *</Text>
+                  <Text style={styles.inputLabel}>Date of Birth *</Text>
                   <TextInput
                     style={styles.textInput}
-                    value={formAge}
-                    onChangeText={setFormAge}
-                    placeholder="e.g. 2 Years"
+                    value={dateOfBirth}
+                    onChangeText={setDateOfBirth}
+                    placeholder="YYYY-MM-DD"
                     placeholderTextColor="#94a3b8"
                   />
                 </View>
