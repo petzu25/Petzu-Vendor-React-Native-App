@@ -12,6 +12,7 @@ import {
   Modal,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import axios from '../../lib/axios';
 import { useAuthStore } from '../../store/useAuthStore';
 import theme from '../../constants/theme';
@@ -47,16 +48,49 @@ export default function SaleReceipts() {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [petSaleDate, setPetSaleDate] = useState(new Date().toISOString().split('T')[0]);
   const [vaccinationDetails, setVaccinationDetails] = useState('');
+  const [additionalDetails, setAdditionalDetails] = useState('');
+  const [priceNegotiable, setPriceNegotiable] = useState(false);
   const [microchipNumber, setMicrochipNumber] = useState('');
   const [kciStatusPet, setKciStatusPet] = useState('Non-KCI Pet');
   const [kciNumber, setKciNumber] = useState('');
   const [kciName, setKciName] = useState('');
 
+  // Fish Specific
+  const [fishCategory, setFishCategory] = useState('');
+  const [fishQuantity, setFishQuantity] = useState('Single');
+  const [fishQuantityCount, setFishQuantityCount] = useState('');
+  const [fishGender, setFishGender] = useState('Unsexed');
+  const [fishSizeCm, setFishSizeCm] = useState('');
+  const [fishColorVariant, setFishColorVariant] = useState('');
+  const [fishFeedType, setFishFeedType] = useState('Flakes');
+
+  // Bird Specific
+  const [birdQuantity, setBirdQuantity] = useState('Single');
+  const [birdGender, setBirdGender] = useState('Unsexed');
+  const [birdFeedType, setBirdFeedType] = useState('Seeds');
+  const [birdColorVariant, setBirdColorVariant] = useState('');
+  const [birdTalkingAbility, setBirdTalkingAbility] = useState(false);
+
+  // Media
+  const [images, setImages] = useState([]);
+  const [video, setVideo] = useState(null);
+  const [kciCertificates, setKciCertificates] = useState([]);
+  const [vaccinationImages, setVaccinationImages] = useState([]);
+
   // Accessories
   const [accessories, setAccessories] = useState([]);
   const [newAccName, setNewAccName] = useState('');
+  const [newAccQuality, setNewAccQuality] = useState('Standard');
   const [newAccQty, setNewAccQty] = useState('1');
   const [newAccPrice, setNewAccPrice] = useState('');
+
+  // Buyer Follow-Up
+  const [buyerFollowUpActive, setBuyerFollowUpActive] = useState(false);
+  const [buyerFollowUp, setBuyerFollowUp] = useState({
+    sevenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+    fifteenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+    thirtyDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+  });
 
   // Seller Details (auto-filled)
   const [breederName, setBreederName] = useState('');
@@ -102,19 +136,52 @@ export default function SaleReceipts() {
     setBreed('');
     setGender('Male');
     setPetPrice('');
+    setPriceNegotiable(false);
     setPetQuality('Pet Quality');
     setPetLineage('None');
     setDateOfBirth('');
     setPetSaleDate(new Date().toISOString().split('T')[0]);
     setVaccinationDetails('');
+    setAdditionalDetails('');
     setMicrochipNumber('');
     setKciStatusPet('Non-KCI Pet');
     setKciNumber('');
     setKciName('');
+
+    // Fish
+    setFishCategory('');
+    setFishQuantity('Single');
+    setFishQuantityCount('');
+    setFishGender('Unsexed');
+    setFishSizeCm('');
+    setFishColorVariant('');
+    setFishFeedType('Flakes');
+
+    // Bird
+    setBirdQuantity('Single');
+    setBirdGender('Unsexed');
+    setBirdFeedType('Seeds');
+    setBirdColorVariant('');
+    setBirdTalkingAbility(false);
+
+    // Media
+    setImages([]);
+    setVideo(null);
+    setKciCertificates([]);
+    setVaccinationImages([]);
+
     setAccessories([]);
     setNewAccName('');
+    setNewAccQuality('Standard');
     setNewAccQty('1');
     setNewAccPrice('');
+    // Buyer Follow-Up
+    setBuyerFollowUpActive(false);
+    setBuyerFollowUp({
+      sevenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+      fifteenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+      thirtyDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+    });
     // Auto-fill seller from authUser
     setBreederName(authUser?.fullName || authUser?.breederName || '');
     setShopName(authUser?.shopName || '');
@@ -137,25 +204,56 @@ export default function SaleReceipts() {
     setBreed(receipt.breed || '');
     setGender(receipt.gender || 'Male');
     setPetPrice(receipt.price?.toString() || '');
+    setPriceNegotiable(!!receipt.priceNegotiable);
     setPetQuality(receipt.petQuality || 'Pet Quality');
     setPetLineage(receipt.petLineage || 'None');
-    setDateOfBirth(
-      receipt.dateOfBirth ? new Date(receipt.dateOfBirth).toISOString().split('T')[0] : ''
-    );
-    setPetSaleDate(
-      receipt.petSaleDate
-        ? new Date(receipt.petSaleDate).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0]
-    );
+    setDateOfBirth(receipt.dateOfBirth ? new Date(receipt.dateOfBirth).toISOString().split('T')[0] : '');
+    setPetSaleDate(receipt.petSaleDate ? new Date(receipt.petSaleDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
     setVaccinationDetails(receipt.vaccinationDetails || '');
+    setAdditionalDetails(receipt.additionalDetails || '');
     setMicrochipNumber(receipt.microchipNumber || '');
     setKciStatusPet(receipt.kciStatusPet || 'Non-KCI Pet');
     setKciNumber(receipt.kciNumber || '');
     setKciName(receipt.kciName || '');
+
+    // Fish
+    setFishCategory(receipt.fish_category || '');
+    setFishQuantity(receipt.fish_quantity || 'Single');
+    setFishQuantityCount(receipt.fish_quantityCount?.toString() || '');
+    setFishGender(receipt.fish_gender || 'Unsexed');
+    setFishSizeCm(receipt.fish_sizeCm?.toString() || '');
+    setFishColorVariant(receipt.fish_colorVariant || '');
+    setFishFeedType(receipt.fish_feedType || 'Flakes');
+
+    // Bird
+    setBirdQuantity(receipt.bird_quantity || 'Single');
+    setBirdGender(receipt.bird_gender || 'Unsexed');
+    setBirdFeedType(receipt.bird_feedType || 'Seeds');
+    setBirdColorVariant(receipt.bird_colorVariant || '');
+    setBirdTalkingAbility(!!receipt.bird_talkingAbility);
+
+    // Media
+    setImages(receipt.images || []);
+    setVideo(receipt.video || null);
+    setKciCertificates(receipt.kciCertificate || []);
+    setVaccinationImages(receipt.vaccinationImages || []);
+
     setAccessories(receipt.accessories || []);
     setNewAccName('');
+    setNewAccQuality('Standard');
     setNewAccQty('1');
     setNewAccPrice('');
+    // Buyer Follow-Up
+    setBuyerFollowUpActive(!!receipt.buyerFollowUp);
+    if (receipt.buyerFollowUp && receipt.buyerFollowUp.sevenDay) {
+      setBuyerFollowUp(receipt.buyerFollowUp);
+    } else {
+      setBuyerFollowUp({
+        sevenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+        fifteenDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+        thirtyDay: { rating: null, satisfaction: '', healthStatus: '', comment: '', completed: false },
+      });
+    }
     // Seller
     setBreederName(receipt.breederName || authUser?.fullName || '');
     setShopName(receipt.shopName || authUser?.shopName || '');
@@ -176,8 +274,9 @@ export default function SaleReceipts() {
     }
     const quantity = parseInt(newAccQty) || 1;
     const price = parseFloat(newAccPrice) || 0;
-    setAccessories((prev) => [...prev, { item: newAccName, quantity, price }]);
+    setAccessories((prev) => [...prev, { item: newAccName, quality: newAccQuality, quantity, price }]);
     setNewAccName('');
+    setNewAccQuality('Standard');
     setNewAccQty('1');
     setNewAccPrice('');
   };
@@ -208,6 +307,48 @@ export default function SaleReceipts() {
     ]);
   };
 
+  const handlePickFile = async (type, isVideo = false) => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: isVideo ? ImagePicker.MediaTypeOptions.Videos : ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: !isVideo,
+        quality: 0.8,
+        allowsMultipleSelection: type === 'images' || type === 'vaccination' || type === 'kci',
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        if (type === 'video') {
+          setVideo(result.assets[0].uri);
+        } else if (type === 'images') {
+          setImages([...images, ...result.assets.map(a => a.uri)].slice(0, 5));
+        } else if (type === 'vaccination') {
+          setVaccinationImages([...vaccinationImages, ...result.assets.map(a => a.uri)].slice(0, 3));
+        } else if (type === 'kci') {
+          setKciCertificates([...kciCertificates, ...result.assets.map(a => a.uri)].slice(0, 3));
+        }
+      }
+    } catch (err) {
+      console.error('Error picking file:', err);
+      Alert.alert('Error', 'Failed to pick file.');
+    }
+  };
+
+  const appendFileIfLocal = (formData, key, fileUri, defaultName = 'file.jpg') => {
+    if (!fileUri) return;
+    if (fileUri.startsWith('http')) {
+      const fieldKey = key === 'video' ? 'existingVideo' : 
+                       key === 'images' ? 'existingImages' : 
+                       key === 'vaccinationImages' ? 'existingVaccinationImages' : 
+                       key === 'kciCertificate' ? 'existingKciCertificate' : key;
+      formData.append(fieldKey, fileUri);
+    } else {
+      const filename = fileUri.split('/').pop() || defaultName;
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      formData.append(key, { uri: fileUri, name: filename, type: key === 'video' ? 'video/mp4' : type });
+    }
+  };
+
   const handleSave = async () => {
     if (!buyerName || !buyerPhone || !breed || !petPrice || !dateOfBirth) {
       Alert.alert(
@@ -227,40 +368,78 @@ export default function SaleReceipts() {
 
     try {
       setSubmitting(true);
-      const payload = {
-        // Buyer
-        buyerName,
-        buyerPhoneNumber: buyerPhone,
-        buyerAddress,
-        buyerLocation,
-        // Pet
-        category,
-        breed,
-        gender,
-        price: parseFloat(petPrice),
-        petQuality,
-        petLineage,
-        dateOfBirth,
-        petSaleDate,
-        vaccinationDetails,
-        microchipNumber,
-        kciStatusPet,
-        kciNumber,
-        kciName,
-        accessories,
-        // Seller (required by model)
-        breederName,
-        phoneNumber: sellerPhone,
-        shopName,
-        shopFullAddress,
-        location: sellerLocation,
-      };
+      const data = new FormData();
+
+      // Buyer
+      data.append('buyerName', buyerName);
+      data.append('buyerPhoneNumber', buyerPhone);
+      data.append('buyerAddress', buyerAddress);
+      data.append('buyerLocation', buyerLocation);
+
+      // Pet
+      data.append('category', category);
+      data.append('breed', breed);
+      data.append('gender', gender);
+      data.append('price', petPrice);
+      data.append('priceNegotiable', String(priceNegotiable));
+      data.append('petQuality', petQuality);
+      data.append('petLineage', petLineage);
+      data.append('dateOfBirth', dateOfBirth);
+      data.append('petSaleDate', petSaleDate);
+      data.append('vaccinationDetails', vaccinationDetails);
+      data.append('additionalDetails', additionalDetails);
+      data.append('microchipNumber', microchipNumber);
+      data.append('kciStatusPet', kciStatusPet);
+      if (kciStatusPet === 'KCI Registered') {
+        data.append('kciNumber', kciNumber);
+        data.append('kciName', kciName);
+      }
+
+      // Fish Specific
+      if (category === 'Fish') {
+        data.append('fish_category', fishCategory);
+        data.append('fish_quantity', fishQuantity);
+        if (fishQuantity === 'Group') data.append('fish_quantityCount', fishQuantityCount);
+        data.append('fish_gender', fishGender);
+        if (fishSizeCm) data.append('fish_sizeCm', fishSizeCm);
+        data.append('fish_colorVariant', fishColorVariant);
+        data.append('fish_feedType', fishFeedType);
+      } else if (category === 'Bird') {
+        data.append('bird_quantity', birdQuantity);
+        data.append('bird_gender', birdGender);
+        data.append('bird_talkingAbility', String(birdTalkingAbility));
+        data.append('bird_feedType', birdFeedType);
+        data.append('bird_colorVariant', birdColorVariant);
+      }
+
+      data.append('accessories', JSON.stringify(accessories));
+      
+      if (buyerFollowUpActive) {
+        data.append('buyerFollowUp', JSON.stringify(buyerFollowUp));
+      }
+
+      // Seller
+      data.append('breederName', breederName);
+      data.append('phoneNumber', sellerPhone);
+      data.append('shopName', shopName);
+      data.append('shopFullAddress', shopFullAddress);
+      data.append('location', sellerLocation);
+
+      // Media
+      images.forEach(uri => appendFileIfLocal(data, 'images', uri));
+      if (video) appendFileIfLocal(data, 'video', video, 'video.mp4');
+      kciCertificates.forEach(uri => appendFileIfLocal(data, 'kciCertificate', uri));
+      vaccinationImages.forEach(uri => appendFileIfLocal(data, 'vaccinationImages', uri));
 
       if (editingReceipt) {
-        await axios.put(`/petsalereceipts/${editingReceipt._id}`, payload);
+        await axios.put(`/petsalereceipts/${editingReceipt._id}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         Alert.alert('Success', 'Receipt updated successfully');
       } else {
-        await axios.post('/petsalereceipts/create', payload);
+        await axios.post('/petsalereceipts/create', data, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         Alert.alert('Success', 'Receipt generated successfully');
       }
 
@@ -565,25 +744,187 @@ export default function SaleReceipts() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Quality Description</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={petQuality}
-                  onChangeText={setPetQuality}
-                  placeholder="e.g. Show Quality / Pedigree"
-                  placeholderTextColor={theme.COLORS.textSecondary}
-                />
+                <TouchableOpacity
+                  style={styles.checkboxContainer}
+                  onPress={() => setPriceNegotiable(!priceNegotiable)}>
+                  <View style={[styles.checkbox, priceNegotiable ? styles.checkboxChecked : null]}>
+                    {priceNegotiable && <Feather name="check" size={12} color={theme.COLORS.surface} />}
+                  </View>
+                  <Text style={styles.checkboxLabel}>Price is Negotiable</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.gridRow}>
+                <View style={[styles.inputGroup, styles.gridCol]}>
+                  <Text style={styles.inputLabel}>Quality Description</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={petQuality}
+                    onChangeText={setPetQuality}
+                    placeholder="e.g. Show Quality"
+                    placeholderTextColor={theme.COLORS.textSecondary}
+                  />
+                </View>
+                <View style={[styles.inputGroup, styles.gridCol]}>
+                  <Text style={styles.inputLabel}>Pet Lineage</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={petLineage}
+                    onChangeText={setPetLineage}
+                    placeholder="e.g. Champion Bloodline"
+                    placeholderTextColor={theme.COLORS.textSecondary}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.gridRow}>
+                <View style={[styles.inputGroup, styles.gridCol]}>
+                  <Text style={styles.inputLabel}>Date of Birth *</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={dateOfBirth}
+                    onChangeText={setDateOfBirth}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={theme.COLORS.textSecondary}
+                  />
+                </View>
+                <View style={[styles.inputGroup, styles.gridCol]}>
+                  <Text style={styles.inputLabel}>Microchip Number</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={microchipNumber}
+                    onChangeText={setMicrochipNumber}
+                    placeholder="If applicable"
+                    placeholderTextColor={theme.COLORS.textSecondary}
+                  />
+                </View>
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Microchip Number (If applicable)</Text>
+                <Text style={styles.inputLabel}>Vaccination Details</Text>
                 <TextInput
-                  style={styles.textInput}
-                  value={microchipNumber}
-                  onChangeText={setMicrochipNumber}
-                  placeholder="Enter chip code"
+                  style={[styles.textInput, styles.textArea]}
+                  value={vaccinationDetails}
+                  onChangeText={setVaccinationDetails}
+                  placeholder="List completed vaccinations"
                   placeholderTextColor={theme.COLORS.textSecondary}
+                  multiline
                 />
+              </View>
+
+              {/* Conditional Rendering for Fish/Bird */}
+              {category === 'Fish' && (
+                <View style={styles.conditionalBlock}>
+                  <Text style={styles.sectionHeader}>Fish Specific Details</Text>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Fish Category</Text>
+                    <TextInput style={styles.textInput} value={fishCategory} onChangeText={setFishCategory} placeholder="e.g. Tropical, Coldwater" placeholderTextColor={theme.COLORS.textSecondary} />
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Color Variant</Text>
+                    <TextInput style={styles.textInput} value={fishColorVariant} onChangeText={setFishColorVariant} placeholder="e.g. Neon Blue" placeholderTextColor={theme.COLORS.textSecondary} />
+                  </View>
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Quantity Type</Text>
+                      <TextInput style={styles.textInput} value={fishQuantity} onChangeText={setFishQuantity} placeholder="Single or Group" placeholderTextColor={theme.COLORS.textSecondary} />
+                    </View>
+                    {fishQuantity === 'Group' && (
+                      <View style={[styles.inputGroup, styles.gridCol]}>
+                        <Text style={styles.inputLabel}>Count</Text>
+                        <TextInput style={styles.textInput} value={fishQuantityCount} onChangeText={setFishQuantityCount} keyboardType="numeric" placeholderTextColor={theme.COLORS.textSecondary} />
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Size (cm)</Text>
+                      <TextInput style={styles.textInput} value={fishSizeCm} onChangeText={setFishSizeCm} keyboardType="numeric" placeholderTextColor={theme.COLORS.textSecondary} />
+                    </View>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Feed Type</Text>
+                      <TextInput style={styles.textInput} value={fishFeedType} onChangeText={setFishFeedType} placeholder="e.g. Flakes" placeholderTextColor={theme.COLORS.textSecondary} />
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {category === 'Bird' && (
+                <View style={styles.conditionalBlock}>
+                  <Text style={styles.sectionHeader}>Bird Specific Details</Text>
+                  <View style={styles.gridRow}>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Quantity</Text>
+                      <TextInput style={styles.textInput} value={birdQuantity} onChangeText={setBirdQuantity} placeholder="Single/Pair/Flock" placeholderTextColor={theme.COLORS.textSecondary} />
+                    </View>
+                    <View style={[styles.inputGroup, styles.gridCol]}>
+                      <Text style={styles.inputLabel}>Color Variant</Text>
+                      <TextInput style={styles.textInput} value={birdColorVariant} onChangeText={setBirdColorVariant} placeholder="e.g. Lutino" placeholderTextColor={theme.COLORS.textSecondary} />
+                    </View>
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Feed Type</Text>
+                    <TextInput style={styles.textInput} value={birdFeedType} onChangeText={setBirdFeedType} placeholder="e.g. Seeds, Pellets" placeholderTextColor={theme.COLORS.textSecondary} />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.checkboxContainer}
+                    onPress={() => setBirdTalkingAbility(!birdTalkingAbility)}>
+                    <View style={[styles.checkbox, birdTalkingAbility ? styles.checkboxChecked : null]}>
+                      {birdTalkingAbility && <Feather name="check" size={12} color={theme.COLORS.surface} />}
+                    </View>
+                    <Text style={styles.checkboxLabel}>Talking Ability</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Additional Notes / Health Guarantees</Text>
+                <TextInput
+                  style={[styles.textInput, styles.textArea]}
+                  value={additionalDetails}
+                  onChangeText={setAdditionalDetails}
+                  placeholder="Any special remarks or guarantees provided..."
+                  placeholderTextColor={theme.COLORS.textSecondary}
+                  multiline
+                />
+              </View>
+
+              <Text style={styles.sectionHeader}>Media & Documentation</Text>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Pet Photos (Max 5)</Text>
+                <TouchableOpacity style={styles.uploadBtn} onPress={() => handlePickFile('images')}>
+                  <Feather name="image" size={20} color={theme.COLORS.primary} />
+                  <Text style={styles.uploadBtnText}>Upload Photos ({images.length}/5)</Text>
+                </TouchableOpacity>
+                {images.length > 0 && (
+                  <View style={styles.pillContainer}>
+                    {images.map((uri, idx) => (
+                      <View key={idx} style={styles.fileThumbContainer}>
+                        <Feather name="file-text" size={24} color={theme.COLORS.primary} />
+                        <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setImages(images.filter((_, i) => i !== idx))}>
+                          <Feather name="x" size={12} color="#fff" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Pet Video (Optional)</Text>
+                <TouchableOpacity style={styles.uploadBtn} onPress={() => handlePickFile('video', true)}>
+                  <Feather name="video" size={20} color={theme.COLORS.primary} />
+                  <Text style={styles.uploadBtnText}>{video ? 'Video Selected' : 'Upload Video'}</Text>
+                </TouchableOpacity>
+                {video && (
+                  <View style={styles.fileThumbContainer}>
+                    <Feather name="film" size={24} color={theme.COLORS.primary} />
+                    <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setVideo(null)}>
+                      <Feather name="x" size={12} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
 
               <Text style={styles.inputLabel}>KCI Registered Status</Text>
@@ -629,8 +970,47 @@ export default function SaleReceipts() {
                       placeholderTextColor={theme.COLORS.textSecondary}
                     />
                   </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Upload KCI Certificates (Max 3)</Text>
+                    <TouchableOpacity style={styles.uploadBtn} onPress={() => handlePickFile('kci')}>
+                      <Feather name="file-plus" size={20} color={theme.COLORS.primary} />
+                      <Text style={styles.uploadBtnText}>Upload ({kciCertificates.length}/3)</Text>
+                    </TouchableOpacity>
+                    {kciCertificates.length > 0 && (
+                      <View style={styles.pillContainer}>
+                        {kciCertificates.map((uri, idx) => (
+                          <View key={idx} style={styles.fileThumbContainer}>
+                            <Feather name="award" size={24} color={theme.COLORS.primary} />
+                            <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setKciCertificates(kciCertificates.filter((_, i) => i !== idx))}>
+                              <Feather name="x" size={12} color="#fff" />
+                            </TouchableOpacity>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
                 </View>
               )}
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Upload Vaccination Proofs (Max 3)</Text>
+                <TouchableOpacity style={styles.uploadBtn} onPress={() => handlePickFile('vaccination')}>
+                  <Feather name="shield" size={20} color={theme.COLORS.primary} />
+                  <Text style={styles.uploadBtnText}>Upload Proofs ({vaccinationImages.length}/3)</Text>
+                </TouchableOpacity>
+                {vaccinationImages.length > 0 && (
+                  <View style={styles.pillContainer}>
+                    {vaccinationImages.map((uri, idx) => (
+                      <View key={idx} style={styles.fileThumbContainer}>
+                        <Feather name="check-circle" size={24} color={theme.COLORS.success} />
+                        <TouchableOpacity style={styles.removeMediaBtn} onPress={() => setVaccinationImages(vaccinationImages.filter((_, i) => i !== idx))}>
+                          <Feather name="x" size={12} color="#fff" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
 
               {/* Accessories Checklist */}
               <Text style={styles.sectionHeader}>Billing Accessories / Products</Text>
@@ -641,6 +1021,13 @@ export default function SaleReceipts() {
                   value={newAccName}
                   onChangeText={setNewAccName}
                   placeholder="Accessory / Food item name"
+                  placeholderTextColor={theme.COLORS.textSecondary}
+                />
+                <TextInput
+                  style={[styles.textInput, styles.accInput]}
+                  value={newAccQuality}
+                  onChangeText={setNewAccQuality}
+                  placeholder="Quality / Brand (e.g. Premium)"
                   placeholderTextColor={theme.COLORS.textSecondary}
                 />
                 <View style={styles.gridRow}>
@@ -680,8 +1067,52 @@ export default function SaleReceipts() {
                       <TouchableOpacity
                         style={styles.accRemoveBtn}
                         onPress={() => handleRemoveAccessory(idx)}>
-                        <Feather name="trash-2" size={14} color={theme.COLORS.error} />
+                        <Feather name="x" size={16} color={theme.COLORS.error} />
                       </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Buyer Follow-Up */}
+              <Text style={styles.sectionHeader}>Buyer Follow-Up Program</Text>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setBuyerFollowUpActive(!buyerFollowUpActive)}>
+                <View style={[styles.checkbox, buyerFollowUpActive ? styles.checkboxChecked : null]}>
+                  {buyerFollowUpActive && <Feather name="check" size={12} color={theme.COLORS.surface} />}
+                </View>
+                <Text style={styles.checkboxLabel}>Enable 7/15/30 Day Follow-Up Schedule</Text>
+              </TouchableOpacity>
+
+              {buyerFollowUpActive && (
+                <View style={styles.conditionalBlock}>
+                  {['sevenDay', 'fifteenDay', 'thirtyDay'].map(period => (
+                    <View key={period} style={styles.followUpCard}>
+                      <Text style={styles.followUpCardTitle}>
+                        {period === 'sevenDay' ? '7-Day' : period === 'fifteenDay' ? '15-Day' : '30-Day'} Check-in
+                      </Text>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Health Status</Text>
+                        <TextInput
+                          style={styles.textInput}
+                          value={buyerFollowUp[period].healthStatus}
+                          onChangeText={(t) => setBuyerFollowUp({ ...buyerFollowUp, [period]: { ...buyerFollowUp[period], healthStatus: t } })}
+                          placeholder="e.g. Active, Eating well"
+                          placeholderTextColor={theme.COLORS.textSecondary}
+                        />
+                      </View>
+                      <View style={styles.inputGroup}>
+                        <Text style={styles.inputLabel}>Notes</Text>
+                        <TextInput
+                          style={[styles.textInput, styles.textArea]}
+                          value={buyerFollowUp[period].comment}
+                          onChangeText={(t) => setBuyerFollowUp({ ...buyerFollowUp, [period]: { ...buyerFollowUp[period], comment: t } })}
+                          placeholder="Any concerns or updates?"
+                          placeholderTextColor={theme.COLORS.textSecondary}
+                          multiline
+                        />
+                      </View>
                     </View>
                   ))}
                 </View>
@@ -744,7 +1175,16 @@ export default function SaleReceipts() {
                       <Text style={styles.partyText}>Ph: {selectedReceipt.phoneNumber}</Text>
                     </View>
 
-                    <View style={styles.partyBox}>
+                    {selectedReceipt.ownerName ? (
+                      <View style={[styles.partyBox, { marginTop: 10 }]}>
+                        <Text style={styles.partyTitle}>ACTUAL OWNER</Text>
+                        <Text style={styles.partyName}>{selectedReceipt.ownerName}</Text>
+                        <Text style={styles.partyText}>{selectedReceipt.ownerFullAddress}</Text>
+                        <Text style={styles.partyText}>Ph: {selectedReceipt.ownerPhoneNumber}</Text>
+                      </View>
+                    ) : null}
+
+                    <View style={[styles.partyBox, { marginTop: 10 }]}>
                       <Text style={styles.partyTitle}>BUYER (CUSTOMER)</Text>
                       <Text style={styles.partyName}>{selectedReceipt.buyerName}</Text>
                       <Text style={styles.partyText}>
@@ -765,7 +1205,12 @@ export default function SaleReceipts() {
                         {selectedReceipt.breed} ({selectedReceipt.gender})
                       </Text>
                       <Text style={styles.billItemDesc}>
-                        {selectedReceipt.category} • Quality: {selectedReceipt.petQuality}
+                        {selectedReceipt.category}
+                        {selectedReceipt.petQuality ? ` • Quality: ${selectedReceipt.petQuality}` : ''}
+                        {selectedReceipt.fish_category ? ` • Type: ${selectedReceipt.fish_category}` : ''}
+                        {selectedReceipt.fish_sizeCm ? ` • Size: ${selectedReceipt.fish_sizeCm}cm` : ''}
+                        {selectedReceipt.bird_colorVariant ? ` • Color: ${selectedReceipt.bird_colorVariant}` : ''}
+                        {selectedReceipt.kciStatusPet === 'KCI Pet' && selectedReceipt.kciNumber ? ` • KCI: ${selectedReceipt.kciNumber}` : ''}
                       </Text>
                     </View>
                     <Text style={styles.billItemQty}>1</Text>
@@ -1295,6 +1740,66 @@ const styles = StyleSheet.create({
   },
   accRemoveBtn: {
     padding: 4,
+  },
+  conditionalBlock: {
+    backgroundColor: theme.COLORS.primary + '0A',
+    padding: 14,
+    borderRadius: theme.RADIUS.lg,
+    marginBottom: theme.SIZES.md,
+    borderWidth: 1,
+    borderColor: theme.COLORS.primary + '20',
+  },
+  uploadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    backgroundColor: theme.COLORS.primary + '10',
+    borderRadius: theme.RADIUS.lg,
+    borderWidth: 1,
+    borderColor: theme.COLORS.primary + '30',
+    borderStyle: 'dashed',
+    marginBottom: 8,
+  },
+  uploadBtnText: {
+    ...theme.TEXT.bodySecondary,
+    color: theme.COLORS.primary,
+    fontWeight: theme.FONTS.bold,
+  },
+  fileThumbContainer: {
+    marginTop: 8,
+    position: 'relative',
+    width: 60,
+    height: 60,
+    borderRadius: theme.RADIUS.md,
+    backgroundColor: theme.COLORS.surface,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  removeMediaBtn: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: theme.COLORS.error,
+    borderRadius: 12,
+    padding: 2,
+  },
+  followUpCard: {
+    backgroundColor: theme.COLORS.surface,
+    padding: 12,
+    borderRadius: theme.RADIUS.md,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: theme.COLORS.borderLight,
+  },
+  followUpCardTitle: {
+    ...theme.TEXT.label,
+    color: theme.COLORS.text,
+    marginBottom: 8,
   },
   saveInvoiceBtn: {
     backgroundColor: theme.COLORS.primary,

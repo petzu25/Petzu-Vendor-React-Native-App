@@ -51,15 +51,18 @@ export default function MatingPets() {
   const [kciNumber, setKciNumber] = useState('');
   const [kciName, setKciName] = useState('');
   const [microchipNumber, setMicrochipNumber] = useState('');
-  // Breeder details (auto-filled)
   const [breederName, setBreederName] = useState('');
   const [phoneNum, setPhoneNum] = useState('');
   const [shopAddress, setShopAddress] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerPhoneNumber, setOwnerPhoneNumber] = useState('');
+  const [ownerFullAddress, setOwnerFullAddress] = useState('');
   const [formDescription, setFormDescription] = useState('');
 
   const [formImages, setFormImages] = useState([]);
   const [vaccinationProof, setVaccinationProof] = useState([]);
   const [kciCertImages, setKciCertImages] = useState([]);
+  const [video, setVideo] = useState(null);
 
   // View Details Modal
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -105,10 +108,14 @@ export default function MatingPets() {
     setBreederName(authUser?.fullName || '');
     setPhoneNum(authUser?.phoneNumber || '');
     setShopAddress(authUser?.shopAddress || '');
+    setOwnerName('');
+    setOwnerPhoneNumber('');
+    setOwnerFullAddress('');
     setFormDescription('');
     setFormImages([]);
     setVaccinationProof([]);
     setKciCertImages([]);
+    setVideo(null);
     setCurrentStep(1);
     setModalVisible(true);
   };
@@ -132,10 +139,14 @@ export default function MatingPets() {
     setBreederName(pet.breederName || authUser?.fullName || '');
     setPhoneNum(pet.phoneNum || authUser?.phoneNumber || '');
     setShopAddress(pet.shopAddress || authUser?.shopAddress || '');
+    setOwnerName(pet.ownerName || '');
+    setOwnerPhoneNumber(pet.ownerPhoneNumber || '');
+    setOwnerFullAddress(pet.ownerFullAddress || '');
     setFormDescription(pet.description || '');
     setFormImages(pet.photosAndVideos || []);
     setVaccinationProof(pet.vaccinationProof || []);
     setKciCertImages(pet.kciCertificate || []);
+    setVideo(pet.video || null);
     setCurrentStep(1);
     setModalVisible(true);
   };
@@ -152,7 +163,7 @@ export default function MatingPets() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images', 'videos'],
         allowsMultipleSelection: true,
         quality: 0.8,
       });
@@ -245,6 +256,9 @@ export default function MatingPets() {
       data.append('breederName', breederName);
       data.append('phoneNum', phoneNum);
       if (shopAddress) data.append('shopAddress', shopAddress);
+      data.append('ownerName', ownerName);
+      data.append('ownerPhoneNumber', ownerPhoneNumber);
+      data.append('ownerFullAddress', ownerFullAddress);
       if (formDescription) data.append('description', formDescription);
 
       // Pet images
@@ -621,6 +635,31 @@ export default function MatingPets() {
                     onRemove={(idx) => handleRemoveImage(idx, 'images')}
                     limit={5}
                   />
+
+                  {/* Single Video Selection */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Stud Video (Optional, max 1)</Text>
+                    {!video ? (
+                      <TouchableOpacity style={styles.photoPicker} onPress={async () => {
+                        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                        if (status !== 'granted') return Alert.alert('Permission Denied');
+                        const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['videos'], allowsMultipleSelection: false });
+                        if (!res.canceled && res.assets) setVideo(res.assets[0].uri);
+                      }}>
+                        <Feather name="video" size={22} color={theme.COLORS.primary} />
+                        <Text style={styles.photoPickerText}>Select Video</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.imageItem}>
+                        <View style={styles.placeholderCardImage}>
+                          <Feather name="video" size={32} color={theme.COLORS.primary} />
+                        </View>
+                        <TouchableOpacity style={styles.removeImageBtn} onPress={() => setVideo(null)}>
+                          <Feather name="x" size={14} color={theme.COLORS.surface} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
                 </View>
               )}
 
@@ -727,50 +766,45 @@ export default function MatingPets() {
                 <View style={styles.stepContainer}>
                   <Text style={styles.stepTitle}>Owner & Location</Text>
 
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Breeder / Owner Name *</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={breederName}
-                      onChangeText={setBreederName}
-                      placeholder="Your full name"
-                      placeholderTextColor={theme.COLORS.textSecondary}
-                    />
-                  </View>
+                  {[
+                    { label: 'Breeder / Shop Name *', value: breederName, setter: setBreederName, placeholder: 'Your shop name', keyboard: 'default' },
+                    { label: 'Shop Phone Number *', value: phoneNum, setter: setPhoneNum, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
+                    { label: 'Stud Location *', value: formLocation, setter: setFormLocation, placeholder: 'City, State', keyboard: 'default' },
+                    { label: 'Shop Address', value: shopAddress, setter: setShopAddress, placeholder: 'Complete shop address', keyboard: 'default' },
+                  ].map(({ label, value, setter, placeholder, keyboard }) => (
+                    <View key={label} style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>{label}</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={value}
+                        onChangeText={setter}
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                        keyboardType={keyboard}
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  ))}
 
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Phone Number *</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={phoneNum}
-                      onChangeText={setPhoneNum}
-                      placeholder="10-digit mobile number"
-                      placeholderTextColor={theme.COLORS.textSecondary}
-                      keyboardType="phone-pad"
-                    />
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Stud Location *</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={formLocation}
-                      onChangeText={setFormLocation}
-                      placeholder="e.g. Gachibowli, Hyd"
-                      placeholderTextColor={theme.COLORS.textSecondary}
-                    />
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Shop Address</Text>
-                    <TextInput
-                      style={styles.textInput}
-                      value={shopAddress}
-                      onChangeText={setShopAddress}
-                      placeholder="Complete address"
-                      placeholderTextColor={theme.COLORS.textSecondary}
-                    />
-                  </View>
+                  <Text style={[styles.sectionSubTitle, { marginTop: 10 }]}>Actual Pet Owner Details (If different)</Text>
+                  {[
+                    { label: 'Owner Name', value: ownerName, setter: setOwnerName, placeholder: 'e.g. John Doe', keyboard: 'default' },
+                    { label: 'Owner Phone Number', value: ownerPhoneNumber, setter: setOwnerPhoneNumber, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
+                    { label: 'Owner Full Address', value: ownerFullAddress, setter: setOwnerFullAddress, placeholder: 'Complete owner address', keyboard: 'default' },
+                  ].map(({ label, value, setter, placeholder, keyboard }) => (
+                    <View key={label} style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>{label}</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={value}
+                        onChangeText={setter}
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                        keyboardType={keyboard}
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  ))}
 
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Stud Features & Details</Text>
@@ -887,6 +921,22 @@ export default function MatingPets() {
                     <View style={styles.infoCardItem}>
                       <Text style={styles.infoCardLabel}>Location</Text>
                       <Text style={styles.infoCardVal}>{selectedPet.location || 'N/A'}</Text>
+                    </View>
+                    <View style={styles.infoCardItem}>
+                      <Text style={styles.infoCardLabel}>Shop/Breeder</Text>
+                      <Text style={styles.infoCardVal}>{selectedPet.breederName || 'N/A'}</Text>
+                    </View>
+                    <View style={styles.infoCardItem}>
+                      <Text style={styles.infoCardLabel}>Shop Phone</Text>
+                      <Text style={styles.infoCardVal}>{selectedPet.phoneNum || 'N/A'}</Text>
+                    </View>
+                    <View style={styles.infoCardItem}>
+                      <Text style={styles.infoCardLabel}>Owner Name</Text>
+                      <Text style={styles.infoCardVal}>{selectedPet.ownerName || 'N/A'}</Text>
+                    </View>
+                    <View style={styles.infoCardItem}>
+                      <Text style={styles.infoCardLabel}>Owner Phone</Text>
+                      <Text style={styles.infoCardVal}>{selectedPet.ownerPhoneNumber || 'N/A'}</Text>
                     </View>
                   </View>
 

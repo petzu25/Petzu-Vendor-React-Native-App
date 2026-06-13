@@ -80,6 +80,9 @@ export default function AvailablePets() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [shopAddress, setShopAddress] = useState('');
   const [location, setLocation] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerPhoneNumber, setOwnerPhoneNumber] = useState('');
+  const [ownerFullAddress, setOwnerFullAddress] = useState('');
   const [additionalDetails, setAdditionalDetails] = useState('');
 
   const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -141,6 +144,9 @@ export default function AvailablePets() {
     setPhoneNumber(authUser?.phoneNumber || '');
     setShopAddress(authUser?.shopAddress || '');
     setLocation(authUser?.location || authUser?.shopAddress || '');
+    setOwnerName('');
+    setOwnerPhoneNumber('');
+    setOwnerFullAddress('');
     setAdditionalDetails('');
     setFormImages([]);
     setVaccinationProofImages([]);
@@ -189,6 +195,9 @@ export default function AvailablePets() {
     setPhoneNumber(pet.phoneNumber || authUser?.phoneNumber || '');
     setShopAddress(pet.shopAddress || authUser?.shopAddress || '');
     setLocation(pet.location || '');
+    setOwnerName(pet.ownerName || '');
+    setOwnerPhoneNumber(pet.ownerPhoneNumber || '');
+    setOwnerFullAddress(pet.ownerFullAddress || '');
     setAdditionalDetails(pet.details || '');
     setFormImages(pet.images || []);
     setVaccinationProofImages(pet.vaccinationProof || []);
@@ -210,7 +219,7 @@ export default function AvailablePets() {
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images', 'videos'],
         allowsMultipleSelection: true,
         selectionLimit: limit - current.length,
         quality: 0.8,
@@ -330,6 +339,9 @@ export default function AvailablePets() {
       data.append('phoneNumber', phoneNumber);
       data.append('shopAddress', shopAddress);
       data.append('location', location);
+      data.append('ownerName', ownerName);
+      data.append('ownerPhoneNumber', ownerPhoneNumber);
+      data.append('ownerFullAddress', ownerFullAddress);
       if (additionalDetails) data.append('details', additionalDetails);
 
       // Step 4: Images (new local URIs)
@@ -830,6 +842,31 @@ export default function AvailablePets() {
                     onRemove={(idx) => handleRemoveImage(setFormImages, idx)}
                   />
 
+                  {/* Single Video Selection */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Pet Video (Optional, max 1)</Text>
+                    {!video ? (
+                      <TouchableOpacity style={styles.photoPicker} onPress={async () => {
+                        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                        if (status !== 'granted') return Alert.alert('Permission Denied');
+                        const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['videos'], allowsMultipleSelection: false });
+                        if (!res.canceled && res.assets) setVideo(res.assets[0].uri);
+                      }}>
+                        <Feather name="video" size={22} color={theme.COLORS.primary} />
+                        <Text style={styles.photoPickerText}>Select Video</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.imageItem}>
+                        <View style={styles.placeholderCardImage}>
+                          <Feather name="video" size={32} color={theme.COLORS.primary} />
+                        </View>
+                        <TouchableOpacity style={styles.removeImageBtn} onPress={() => setVideo(null)}>
+                          <Feather name="x" size={14} color={theme.COLORS.surface} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
                   <ImageGrid
                     label="Vaccination Proof"
                     images={vaccinationProofImages}
@@ -859,10 +896,30 @@ export default function AvailablePets() {
                   </Text>
 
                   {[
-                    { label: 'Breeder / Owner Name *', value: breederName, setter: setBreederName, placeholder: 'Your full name', keyboard: 'default' },
-                    { label: 'Phone Number *', value: phoneNumber, setter: setPhoneNumber, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
+                    { label: 'Breeder / Shop Name *', value: breederName, setter: setBreederName, placeholder: 'Your shop name', keyboard: 'default' },
+                    { label: 'Shop Phone Number *', value: phoneNumber, setter: setPhoneNumber, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
                     { label: 'Location / City *', value: location, setter: setLocation, placeholder: 'City, State', keyboard: 'default' },
                     { label: 'Shop Address', value: shopAddress, setter: setShopAddress, placeholder: 'Complete shop address', keyboard: 'default' },
+                  ].map(({ label, value, setter, placeholder, keyboard }) => (
+                    <View key={label} style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>{label}</Text>
+                      <TextInput
+                        style={styles.textInput}
+                        value={value}
+                        onChangeText={setter}
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.COLORS.textSecondary}
+                        keyboardType={keyboard}
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  ))}
+
+                  <Text style={[styles.sectionSubTitle, { marginTop: 10 }]}>Actual Pet Owner Details (If different)</Text>
+                  {[
+                    { label: 'Owner Name', value: ownerName, setter: setOwnerName, placeholder: 'e.g. John Doe', keyboard: 'default' },
+                    { label: 'Owner Phone Number', value: ownerPhoneNumber, setter: setOwnerPhoneNumber, placeholder: '10-digit mobile number', keyboard: 'phone-pad' },
+                    { label: 'Owner Full Address', value: ownerFullAddress, setter: setOwnerFullAddress, placeholder: 'Complete owner address', keyboard: 'default' },
                   ].map(({ label, value, setter, placeholder, keyboard }) => (
                     <View key={label} style={styles.inputGroup}>
                       <Text style={styles.inputLabel}>{label}</Text>
@@ -975,11 +1032,24 @@ export default function AvailablePets() {
                     { label: 'Pet Quality', value: selectedPet.petQuality },
                     { label: 'Lineage', value: selectedPet.breedLineage },
                     { label: 'Vaccination', value: selectedPet.vaccinationDetails },
+                    { label: 'Fish Category', value: selectedPet.fish_category },
+                    { label: 'Fish Quantity', value: selectedPet.fish_quantity },
+                    { label: 'Fish Size (cm)', value: selectedPet.fish_sizeCm },
+                    { label: 'Fish Color', value: selectedPet.fish_colorVariant },
+                    { label: 'Fish Feed', value: selectedPet.fish_feedType },
+                    { label: 'Bird Quantity', value: selectedPet.bird_quantity },
+                    { label: 'Bird Color', value: selectedPet.bird_colorVariant },
+                    { label: 'Bird Feed', value: selectedPet.bird_feedType },
                     { label: 'KCI Status', value: selectedPet.kciStatusPet },
                     { label: 'KCI Number', value: selectedPet.kciNumber },
                     { label: 'Breeder', value: selectedPet.breederName },
+                    { label: 'Shop Address', value: selectedPet.shopAddress },
                     { label: 'Location', value: selectedPet.location },
                     { label: 'Phone', value: selectedPet.phoneNumber },
+                    { label: 'Owner Name', value: selectedPet.ownerName },
+                    { label: 'Owner Phone', value: selectedPet.ownerPhoneNumber },
+                    { label: 'Owner Address', value: selectedPet.ownerFullAddress },
+                    { label: 'Additional Details', value: selectedPet.details },
                   ].map(({ label, value }) =>
                     value ? (
                       <View key={label} style={styles.infoRow}>
@@ -988,6 +1058,29 @@ export default function AvailablePets() {
                       </View>
                     ) : null
                   )}
+
+                  {/* Render Video Links */}
+                  {selectedPet.video ? (
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Video:</Text>
+                      <Text style={[styles.infoValue, { color: theme.COLORS.primary }]}>Attached Video Available</Text>
+                    </View>
+                  ) : null}
+
+                  {/* Render Certificates Count */}
+                  {selectedPet.kciCertificate && selectedPet.kciCertificate.length > 0 ? (
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>KCI Certs:</Text>
+                      <Text style={styles.infoValue}>{selectedPet.kciCertificate.length} Documents</Text>
+                    </View>
+                  ) : null}
+
+                  {selectedPet.vaccinationProof && selectedPet.vaccinationProof.length > 0 ? (
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Vaccination Proofs:</Text>
+                      <Text style={styles.infoValue}>{selectedPet.vaccinationProof.length} Documents</Text>
+                    </View>
+                  ) : null}
                 </View>
               </ScrollView>
             </View>

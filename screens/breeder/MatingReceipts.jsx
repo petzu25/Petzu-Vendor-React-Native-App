@@ -834,6 +834,54 @@ export default function MatingReceipts() {
                     )}
                   </View>
 
+                  {maleKciStatus === 'KCI Registered' && (
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>Male KCI Certificate Photo</Text>
+                      <TouchableOpacity
+                        style={styles.filePicker}
+                        onPress={() => handlePickFile('maleKci')}>
+                        <Feather name="file-text" size={16} color={theme.COLORS.primary} />
+                        <Text style={styles.filePickerText}>
+                          {maleKciCert ? 'Change Male KCI Cert' : 'Upload Male KCI Cert'}
+                        </Text>
+                      </TouchableOpacity>
+                      {maleKciCert && (
+                        <View style={styles.fileThumbContainer}>
+                          <Image source={{ uri: maleKciCert }} style={styles.fileThumb} />
+                          <TouchableOpacity
+                            style={styles.fileRemove}
+                            onPress={() => handleRemoveFile('maleKci')}>
+                            <Feather name="x" size={12} color={theme.COLORS.surface} />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {femaleKciStatus === 'KCI Registered' && (
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.inputLabel}>Female KCI Certificate Photo</Text>
+                      <TouchableOpacity
+                        style={styles.filePicker}
+                        onPress={() => handlePickFile('femaleKci')}>
+                        <Feather name="file-text" size={16} color={theme.COLORS.primary} />
+                        <Text style={styles.filePickerText}>
+                          {femaleKciCert ? 'Change Female KCI Cert' : 'Upload Female KCI Cert'}
+                        </Text>
+                      </TouchableOpacity>
+                      {femaleKciCert && (
+                        <View style={styles.fileThumbContainer}>
+                          <Image source={{ uri: femaleKciCert }} style={styles.fileThumb} />
+                          <TouchableOpacity
+                            style={styles.fileRemove}
+                            onPress={() => handleRemoveFile('femaleKci')}>
+                            <Feather name="x" size={12} color={theme.COLORS.surface} />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
                   <View style={styles.inputGroup}>
                     <Text style={styles.inputLabel}>Mating Lock Photos (Max 3)</Text>
                     <TouchableOpacity
@@ -978,7 +1026,15 @@ export default function MatingReceipts() {
                       </Text>
                     </View>
 
-                    <View style={styles.partyBox}>
+                    {selectedReceipt.maleOwnerName ? (
+                      <View style={[styles.partyBox, { marginTop: 10 }]}>
+                        <Text style={styles.partyTitle}>ACTUAL STUD OWNER</Text>
+                        <Text style={styles.partyName}>{selectedReceipt.maleOwnerName}</Text>
+                        <Text style={styles.partyText}>Ph: {selectedReceipt.maleOwnerPhone}</Text>
+                      </View>
+                    ) : null}
+
+                    <View style={[styles.partyBox, { marginTop: 10 }]}>
                       <Text style={styles.partyTitle}>FEMALE OWNER (CLIENT)</Text>
                       <Text style={styles.partyName}>{selectedReceipt.femaleOwnerName}</Text>
                       <Text style={styles.partyText}>Ph: {selectedReceipt.femaleOwnerPhone}</Text>
@@ -999,7 +1055,7 @@ export default function MatingReceipts() {
                       </Text>
                       <Text style={styles.billItemDesc}>
                         Stud Name: {selectedReceipt.maleName || 'N/A'} • Reg:{' '}
-                        {selectedReceipt.maleKciNumber || 'Non-KCI'}
+                        {selectedReceipt.maleKciNumber || 'Non-KCI'} • Quality: {selectedReceipt.malePetQuality || 'Pet Quality'}
                       </Text>
                     </View>
                   </View>
@@ -1011,7 +1067,7 @@ export default function MatingReceipts() {
                       </Text>
                       <Text style={styles.billItemDesc}>
                         Female Name: {selectedReceipt.femaleName || 'N/A'} • Reg:{' '}
-                        {selectedReceipt.femaleKciNumber || 'Non-KCI'}
+                        {selectedReceipt.femaleKciNumber || 'Non-KCI'} • Quality: {selectedReceipt.femalePetQuality || 'Pet Quality'}
                       </Text>
                     </View>
                   </View>
@@ -1122,9 +1178,12 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: theme.COLORS.canvas,
+    paddingHorizontal: theme.SIZES.md,
+    paddingTop: theme.SIZES.md,
   },
   revenueBanner: {
-    borderRadius: 20,
+    borderRadius: theme.RADIUS.xl,
     overflow: 'hidden',
     marginBottom: 16,
   },
@@ -1167,10 +1226,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundcolor: theme.COLORS.surface,
+    backgroundColor: theme.COLORS.surface,
     borderRadius: 12,
     borderWidth: 1,
-    bordercolor: theme.COLORS.borderDark,
+    borderColor: theme.COLORS.borderDark,
     height: 48,
     paddingHorizontal: 12,
     gap: 8,
@@ -1210,17 +1269,17 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   card: {
-    backgroundcolor: theme.COLORS.surface,
+    backgroundColor: theme.COLORS.surface,
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
-    shadowcolor: theme.COLORS.text,
+    shadowColor: theme.COLORS.text,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
-    bordercolor: theme.COLORS.border,
+    borderColor: theme.COLORS.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -1240,7 +1299,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   totalBadge: {
-    backgroundcolor: theme.COLORS.successLight,
+    backgroundColor: theme.COLORS.successLight,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 10,
@@ -1271,7 +1330,7 @@ const styles = StyleSheet.create({
   },
   cardDivider: {
     height: 1,
-    backgroundcolor: theme.COLORS.border,
+    backgroundColor: theme.COLORS.border,
     marginBottom: 12,
   },
   cardActions: {
@@ -1289,8 +1348,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   viewBtn: {
-    backgroundcolor: theme.COLORS.primaryLight,
-    bordercolor: theme.COLORS.borderDark,
+    backgroundColor: theme.COLORS.primaryLight,
+    borderColor: theme.COLORS.borderDark,
   },
   viewBtnText: {
     color: theme.COLORS.primary,
@@ -1298,8 +1357,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   editBtn: {
-    backgroundcolor: theme.COLORS.primaryLight,
-    bordercolor: theme.COLORS.borderDark,
+    backgroundColor: theme.COLORS.primaryLight,
+    borderColor: theme.COLORS.borderDark,
   },
   editBtnText: {
     color: theme.COLORS.primary,
@@ -1310,15 +1369,15 @@ const styles = StyleSheet.create({
     width: 36,
     paddingHorizontal: 0,
     justifyContent: 'center',
-    backgroundcolor: theme.COLORS.errorLight,
-    bordercolor: theme.COLORS.error,
+    backgroundColor: theme.COLORS.errorLight,
+    borderColor: theme.COLORS.error,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
-    backgroundcolor: theme.COLORS.surface,
+    padding: theme.SIZES.xl,
+    backgroundColor: theme.COLORS.surface,
     borderRadius: 24,
     marginTop: 20,
     minHeight: 250,
@@ -1327,7 +1386,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundcolor: theme.COLORS.successLight,
+    backgroundColor: theme.COLORS.successLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -1351,9 +1410,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   formContainer: {
-    backgroundcolor: theme.COLORS.surface,
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    backgroundColor: theme.COLORS.surface,
+    borderTopLeftRadius: theme.RADIUS.xxl,
+    borderTopRightRadius: theme.RADIUS.xxl,
     height: '85%',
     paddingTop: 20,
   },
